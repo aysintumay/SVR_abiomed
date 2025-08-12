@@ -1,0 +1,7 @@
+env: abiomed
+model_name_rl: svr
+seed: 1
+eval_episodes: 100
+no_normalize: True
+
+

@@ -1,0 +1,6 @@
+env: abiomed
+model_name_rl: bc
+seed: 1
+eval_episodes: 100
+no_normalize: True
+

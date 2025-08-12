@@ -4,6 +4,7 @@ import gym
 import argparse
 import os
 # import d4rl
+import yaml
 from pathlib import Path
 import random
 import json
@@ -94,14 +95,22 @@ def eval_policy(policy, env_name, seed, mean, std, writer=None, seed_offset=100,
 
 
 if __name__ == "__main__":
-	
+	print("Running", __file__)
 	parser = argparse.ArgumentParser()
+	parser.add_argument('--config', type=str, default=None)
+	args, remaining_argv = parser.parse_known_args()
+
+	if args.config:
+		with open(args.config, 'r') as f:
+			config = yaml.safe_load(f)
+	else:
+		config = {}
 	#=========== SVR arguments ============
-	parser.add_argument("--env", default="Hopper-v2")        # OpenAI gym environment name
-	parser.add_argument("--seed", default=1, type=int)              # Sets Gym, PyTorch and Numpy seeds
+	# parser.add_argument("--env", default="abiomed")        # OpenAI gym environment name
+	# parser.add_argument("--seed", default=1, type=int)              # Sets Gym, PyTorch and Numpy seeds
 	parser.add_argument("--eval_freq", default=2e4, type=int)       # How often (time steps) we evaluate
-	parser.add_argument("--eval_episodes", default=10, type=int)
-	parser.add_argument("--max_timesteps", default=1e6, type=int)   # Max time steps to run environment
+	# parser.add_argument("--eval_episodes", default=10, type=int)
+	# parser.add_argument("--max_timesteps", default=1e6, type=int)   # Max time steps to run environment
 	parser.add_argument("--batch_size", default=256, type=int)      # Batch size for both actor and critic
 	parser.add_argument("--discount", default=0.99)                 # Discount factor
 	parser.add_argument("--tau", default=0.005)                     # Target network update rate
@@ -110,17 +119,17 @@ if __name__ == "__main__":
 	parser.add_argument("--no_normalize", action="store_true")
 	parser.add_argument('--no_schedule', action="store_true")
 	parser.add_argument('--snis', action="store_true")
-	parser.add_argument("--alpha", default=0.1, type=float)
+	# parser.add_argument("--alpha", default=0.02, type=float)
 	parser.add_argument('--sample_std', default=0.2, type=float)
 	parser.add_argument('--devid', default=5, type=int)
 	parser.add_argument("--data_path", type=str, default="/abiomed/intermediate_data_d4rl/farama_sac_expert/Hopper-v2_expert_1000.pkl")
 
 	#=========== noisy env arguments ============
-	parser.add_argument("--noise_rate_action", type=float, help="Portion of action to be noisy with probability", default=0.01)
-	parser.add_argument("--noise_rate_transition", type=float, help="Portion of transitions to be noisy with probability", default=0.01)
+	# parser.add_argument("--noise_rate_action", type=float, help="Portion of action to be noisy with probability", default=0.01)
+	# parser.add_argument("--noise_rate_transition", type=float, help="Portion of transitions to be noisy with probability", default=0.01)
 	parser.add_argument("--loc", type=float, default=0.0, help="Mean of the noise distribution")
-	parser.add_argument("--scale_action", type=float, default=0.001, help="Standard deviation of the action noise distribution")
-	parser.add_argument("--scale_transition", type=float, default=0.001, help="Standard deviation of the transition noise distribution")
+	# parser.add_argument("--scale_action", type=float, default=0.001, help="Standard deviation of the action noise distribution")
+	# parser.add_argument("--scale_transition", type=float, default=0.001, help="Standard deviation of the transition noise distribution")
 	parser.add_argument("--action", action='store_true', help="Create dataset with noisy actions")
 	parser.add_argument("--transition", action='store_true', help="Create dataset with noisy transitions")
 
@@ -135,7 +144,8 @@ if __name__ == "__main__":
 	parser.add_argument('--save_path', type=str, default='/abiomed/models/policy_models/', help='Path to save model and results')
 
 	parser.add_argument("--classifier_model_name", type=str, default="trained_kde")
-	args = parser.parse_args()
+	parser.set_defaults(**config)
+	args = parser.parse_args(remaining_argv)
 
 	device = torch.device(f"cuda:{args.devid}" if torch.cuda.is_available() else "cpu")
 	print(device)
@@ -246,7 +256,7 @@ if __name__ == "__main__":
 		if (t + 1) % args.eval_freq == 0:
 			print(f"Time steps: {t+1}")
 			d4rl_score = eval_policy(policy, args.env, args.seed, mean, std, eval_episodes=args.eval_episodes, plot=True if t == int(args.max_timesteps)-1 else False, writer = writer)
-			writer.add_scalar('eval/d4rl_score', d4rl_score, t)
+			writer.add_scalar('eval/reward_score', d4rl_score, t)
 	t0 = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 	if not os.path.exists(os.path.join(args.save_path, "SVR_kde", save_path)):
 		os.makedirs(os.path.join(args.save_path, "SVR_kde", save_path))

@@ -38,6 +38,7 @@ class PercentileThresholdKDE:
         self.scaler = None
         self.threshold = None
         self.is_fitted = False
+        self.pca = None
         self.devid = devid
         
     def fit(self, X, verbose=True):
@@ -714,7 +715,7 @@ def main():
         suffix_parts.append(f"obs")
     save_path = "_".join(suffix_parts)
     if args.save_model:
-        model.save_model(os.path.join(args.save_path, save_path)) 
+        model.save_model(os.path.join(args.save_path, args.env, save_path)) 
     
     # Save results
     if args.save_results:
@@ -731,7 +732,7 @@ def main():
         if args.optimize_percentile:
             results['optimization_results'] = search_results
         
-        with open(args.save_results, 'wb') as f:
+        with open(os.path.join(args.save_path, args.env, "results"), 'wb') as f:
             pickle.dump(results, f)
         print(f"Results saved to {args.save_results}")
     

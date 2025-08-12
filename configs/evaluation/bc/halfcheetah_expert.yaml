@@ -1,0 +1,5 @@
+env: HalfCheetah-v2
+model_name_rl: bc
+seed: 1
+eval_episodes: 100
+data_path: "/abiomed/intermediate_data_d4rl/farama_tqc_expert/HalfCheetah-v2_expert_1086.pkl"

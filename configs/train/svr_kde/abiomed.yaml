@@ -1,0 +1,7 @@
+env: abiomed
+seed: 1
+eval_episodes: 10
+alpha: 0.01
+max_timesteps: 500000
+no_normalize: True
+classifier_model_name: trained_kde_abiomed

@@ -220,19 +220,19 @@ def plot_policy(action, state, next_state, writer):
 	x_ticks = np.array(list(range(0, 31, 3)))
 	plt.xticks(default_x_ticks, x_ticks)
 	x1 = len(state[:, :, 0].reshape(-1,1))
-	ax1.axvline(x=x1, linestyle='--', c='black', alpha =0.7)
+	# ax1.axvline(x=x1, linestyle='--', c='black', alpha =0.7)
 	
 
-	plt.plot(range(x1), state[:, :, 0].reshape(-1,1), label ='Observed MAP', color=input_color)
-	plt.plot(range(x1, 2*x1), next_state[:, :, 0].reshape(-1,1),  label ='Predicted MAP', color=pred_color)
+	# plt.plot(range(x1), state[:, :, 0].reshape(-1,1), label ='Observed MAP', color=input_color)
+	plt.plot(range(0, x1), next_state[:, :, 0].reshape(-1,1),  label ='Predicted MAP', color=pred_color)
 	ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-	ax2.plot(range(x1,2*x1), action.reshape(-1,1),'--',label ='Recommended PL', color=rl_color)
-	ax1.legend(loc=3)
-	ax2.legend(loc=1)
+	ax2.plot(range(0, x1), action.reshape(-1,1),'--',label ='Recommended PL', color=rl_color)
+	ax1.legend()
+	ax2.legend()
 
-	ax1.set_ylabel('MAP (mmHg)',  fontsize=20)
-	ax2.set_ylabel('P-level',  fontsize=20)
-	ax1.set_xlabel('Time (min)', fontsize=20)
+	ax1.set_ylabel('MAP (mmHg)',  )
+	ax2.set_ylabel('P-level',  )
+	ax1.set_xlabel('Time (hour)',)
 	ax1.set_title(f"MAP Prediction and P-level")
 	# wandb.log({f"plot_batch_{iter}": wandb.Image(fig)})
 
@@ -244,6 +244,8 @@ def plot_policy(action, state, next_state, writer):
 	img = PIL.Image.open(buf)
 	img_array = np.array(img).transpose(2, 0, 1)  # (C, H, W) for TensorBoard
 	writer.add_image("eval/samples", img_array)
+	#savefig
+	fig.savefig(os.path.join(writer.log_dir, "eval_samples.png"), dpi=300, bbox_inches='tight')
 	plt.close(fig)
 
 	plt.show()

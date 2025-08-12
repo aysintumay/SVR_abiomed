@@ -1,0 +1,6 @@
+env: abiomed
+seed: 1
+eval_episodes: 10
+alpha: 0.01
+no_normalize: True
+max_timesteps: 500000

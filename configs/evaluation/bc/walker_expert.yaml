@@ -1,0 +1,10 @@
+# config.yaml
+env: Walker2d-v2
+model_name_rl: bc
+seed: 1
+eval_episodes: 100
+model_name_rl: bc
+data_path: "/abiomed/intermediate_data_d4rl/farama_sac_expert/Walker2d-v2_expert_1086.pkl"
+
+
+

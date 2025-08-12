@@ -1,0 +1,6 @@
+env: Hopper-v2
+seed: 1
+eval_episodes: 10
+max_timesteps: 1000000
+data_path: "/abiomed/intermediate_data_d4rl/farama_sac_expert/Hopper-v2_aexpert_1000.pkl"
+alpha: 0.02

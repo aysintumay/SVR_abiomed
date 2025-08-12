@@ -116,7 +116,7 @@ if __name__ == "__main__":
 	parser.add_argument("--no_normalize", action="store_true")
 	parser.add_argument('--no_schedule', action="store_true")
 	parser.add_argument('--snis', action="store_true")
-	parser.add_argument("--alpha", default=0.1, type=float)
+	parser.add_argument("--alpha", default=0.02, type=float)
 	parser.add_argument('--sample_std', default=0.2, type=float)
 	parser.add_argument('--devid', default=5, type=int)
 	parser.add_argument("--data_path", type=str, default="/abiomed/intermediate_data_d4rl/farama_sac_expert/Hopper-v2_expert_1000.pkl")
@@ -266,7 +266,7 @@ if __name__ == "__main__":
 		if (t + 1) % args.eval_freq == 0:
 			print(f"Time steps: {t+1}")
 			d4rl_score = eval_policy(policy, args.env, args.seed, mean, std, eval_episodes=args.eval_episodes, plot=True if t == int(args.max_timesteps)-1 else False, writer=writer)
-			writer.add_scalar('eval/d4rl_score', d4rl_score, t)
+			writer.add_scalar('eval/reward_score', d4rl_score, t)
 		#save policy
 	t0 = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 	# save_path = os.path.join(work_dir, f"SVR_{t+1}.pth")

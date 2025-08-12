@@ -142,14 +142,26 @@ class SVR(object):
 				weight = isratio # for is
 			weight = weight.unsqueeze(1)
 		# Compute the target Q value
+		Q_clamp_min, Q_clamp_max = -1e3, 1e4  # safe rangetarget_Q = torch.clamp(target_Q, Q_clamp_min, Q_clamp_max)
 		with torch.no_grad():
 			target_Q1, target_Q2, target_Q3, target_Q4 = self.critic_target(next_state, next_action)
+			# target_Q1 = torch.clamp(target_Q1, Q_clamp_min, Q_clamp_max)
+			# target_Q2 = torch.clamp(target_Q2, Q_clamp_min, Q_clamp_max)
+			# target_Q3 = torch.clamp(target_Q3, Q_clamp_min, Q_clamp_max)
+			# target_Q4 = torch.clamp(target_Q4, Q_clamp_min, Q_clamp_max)
 			target_Q = torch.cat([target_Q1, target_Q2, target_Q3, target_Q4],dim=1)
 			target_Q,_ = torch.min(target_Q,dim=1,keepdim=True)
 			target_Q = reward + not_done * self.discount * target_Q
 
 		# Get current Q estimates
 		current_Q1, current_Q2, current_Q3, current_Q4 = self.critic(state, action)
+		
+		
+
+		current_Q1 = torch.clamp(current_Q1, Q_clamp_min, Q_clamp_max)
+		current_Q2 = torch.clamp(current_Q2, Q_clamp_min, Q_clamp_max)
+		current_Q3 = torch.clamp(current_Q3, Q_clamp_min, Q_clamp_max)
+		current_Q4 = torch.clamp(current_Q4, Q_clamp_min, Q_clamp_max)
 		critic_loss =  F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q) + F.mse_loss(current_Q3, target_Q) + F.mse_loss(current_Q4, target_Q)
 		
 		u_Q = []
@@ -158,10 +170,11 @@ class SVR(object):
 		u_Q.append(u_Q2.mean(dim=1))
 		u_Q.append(u_Q3.mean(dim=1))
 		u_Q.append(u_Q4.mean(dim=1))
-		curr_Q = torch.cat([current_Q1,current_Q2,current_Q3,current_Q4], dim=1)
+
+		curr_Q = torch.cat([current_Q1,current_Q2,current_Q3,current_Q4], dim=1) #max out at 10000
 		u_Q = torch.cat(u_Q, dim=1)
 		qmin = (torch.ones_like(curr_Q) * self.Q_min).detach()
-		reg_diff = torch.clamp((u_Q-qmin)**2 - weight * (curr_Q-qmin)**2, min = -1e4)
+		reg_diff = torch.clamp((u_Q-qmin)**2 - weight * (curr_Q-qmin)**2, min = -1e4) #max clamp here
 		reg_loss = self.alpha * reg_diff.mean()
 		if self.total_it % 10000 == 0:
 			with torch.no_grad():
@@ -195,6 +208,8 @@ class SVR(object):
 		# Optimize the critic
 		self.critic_optimizer.zero_grad()
 		critic_loss.backward()
+		# torch.nn.utils.clip_grad_norm_(self.critic.parameters(), max_norm=10.0)
+
 		self.critic_optimizer.step()
 
 		# Delayed policy updates
