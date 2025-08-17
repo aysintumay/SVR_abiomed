@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import gym
 
-
+import yaml
 import argparse
 import os
 # import d4rl
@@ -22,86 +22,25 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils import get_env_data
 import utils
+from evaluate import eval_policy
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from noisy_mujoco.abiomed_env.rl_env import AbiomedRLEnvFactory
 
 
 
-def eval_policy(policy, env_name, seed, mean, std, writer=None, seed_offset=100, eval_episodes=10, plot=None):
-	if env_name == 'abiomed':
-		eval_env = AbiomedRLEnvFactory.create_env(
-									model_name=args.model_name,
-									model_path=args.model_path,
-									data_path=args.data_path_wm,
-									max_steps=args.max_steps,
-									action_space_type="continuous",
-									reward_type="smooth",
-									normalize_rewards=True,
-									seed=42,
-									device = policy.device if torch.cuda.is_available() else "cpu",
-									)
-		eval_env.seed(seed + seed_offset)
-		eval_env.action_space.seed(seed + seed_offset)
-		avg_reward = 0.
-		
-		for k in range(eval_episodes):
-			state_ = []
-			next_state_ = []
-
-			(state, _), done = eval_env.reset(), False #state is normalized
-			# if k == np.random.randint(1, eval_episodes-1):
-			truncated = False
-			
-			while not (done or truncated):
-				state = (np.array(state).reshape(1,-1) - mean)/std
-				action = policy.select_action(state) #action is in [2,10], state is already normalized
-				next_state, reward, done, truncated, _ = eval_env.step(action)
-				avg_reward += reward
-				# print(reward)
-
-				state_.append(state)
-				next_state_.append(next_state)
-				state = next_state
-
-			if (k == 1) & plot:
-				#unnormalize
-				max_steps = eval_env.max_steps
-				forecast_n = eval_env.world_model.forecast_horizon
-				action_unnorm  = np.repeat(eval_env.episode_actions,forecast_n)
-				state_unnorm = eval_env.world_model.unnorm_output(np.array(state_).reshape(max_steps, forecast_n, -1))
-				next_state_unnorm = eval_env.world_model.unnorm_output(np.array(next_state_).reshape(max_steps, forecast_n, -1))
-				utils.plot_policy(action_unnorm, state_unnorm, next_state_unnorm, writer)
-
-	else:
-		eval_env = gym.make(env_name)
-
-		# eval_env.seed(seed + seed_offset)
-		eval_env.action_space.seed(seed + seed_offset)
-		
-		avg_reward = 0.
-		for _ in range(eval_episodes):
-			(state, _), done = eval_env.reset(), False
-			truncated = False
-			
-			while not (done or truncated):
-				state = (np.array(state).reshape(1,-1) - mean)/std
-				action = policy.select_action(state)
-				state, reward, done, truncated, _ = eval_env.step(action)
-				avg_reward += reward
-
-	avg_reward /= eval_episodes
-	# d4rl_score = eval_env.get_normalized_score(avg_reward) * 100
-
-	print("---------------------------------------")
-	print(f"Evaluation over {eval_episodes} episodes: {avg_reward:.3f}, D4RL score: {avg_reward:.3f}")
-	print("---------------------------------------")
-	return avg_reward
-
 
 if __name__ == "__main__":
 	print("Running", __file__)
 	parser = argparse.ArgumentParser()
+	parser.add_argument('--config', type=str, default="configs/train/svr_kde/abiomed.yaml")
+	args, remaining_argv = parser.parse_known_args()
+
+	if args.config:
+		with open(args.config, 'r') as f:
+			config = yaml.safe_load(f)
+	else:
+		config = {}
 	#=========== SVR arguments ============
 	parser.add_argument("--env", default="abiomed")        # OpenAI gym environment name
 	parser.add_argument("--seed", default=1, type=int)              # Sets Gym, PyTorch and Numpy seeds
@@ -130,15 +69,18 @@ if __name__ == "__main__":
 	parser.add_argument("--action", action='store_true', help="Create dataset with noisy actions")
 	parser.add_argument("--transition", action='store_true', help="Create dataset with noisy transitions")
 	#============ abiomed environment arguments ============
-	parser.add_argument("--model_name", type=str, default="10min_1hr_window")
+	parser.add_argument("--model_name", type=str, default="10min_1hr_all_data")
 	parser.add_argument("--model_path", type=str, default=None)
 	parser.add_argument("--data_path_wm", type=str, default=None)
-	parser.add_argument("--max_steps", type=int, default=24)
+	parser.add_argument("--max_steps", type=int, default=6)
+	
+	parser.add_argument("--normalize_rewards", action='store_true', help="Normalize rewards in the Abiomed environment")
 	parser.add_argument("--action_space_type", type=str, default="continuous", choices=["continuous", "discrete"], help="Type of action space for the environment") 
-
+	parser.add_argument('--fs', action= "store_true", help= "Use feature selection for the policy model")
 	parser.add_argument('--save_path', type=str, default='/abiomed/models/policy_models/', help='Path to save model and results')
 
-	args = parser.parse_args()
+	parser.set_defaults(**config)
+	args = parser.parse_args(remaining_argv)
 
 	device = torch.device(f"cuda:{args.devid}" if torch.cuda.is_available() else "cpu")
 	print(device)
@@ -146,42 +88,7 @@ if __name__ == "__main__":
 	print(f"Env: {args.env}, Seed: {args.seed}")
 	print("---------------------------------------")
 
-	# if args.env[0].isupper():
-	# 	env = gy.make(args.env)
-	# 	if args.action and not args.transition:
-	# 		print("Environment with noisy actions")
-	# 		env = RandomNormalNoisyActions(env=env, noise_rate=args.noise_rate_action, loc = args.loc, scale = args.scale_action)
-	# 	elif args.transition and not args.action:
-	# 		print("Environment with noisy transitions")
-	# 		env = RandomNormalNoisyTransitions(env=env, noise_rate=args.noise_rate_transition, loc = args.loc, scale = args.scale_transition)
-	# 	elif args.transition and args.action:
-	# 		print("Environment with noisy actions and transitions")
-	# 		env = RandomNormalNoisyTransitionsActions(env=env, noise_rate_action=args.noise_rate_action, loc = args.loc, scale_action = args.scale_action,\
-	# 														noise_rate_transition=args.noise_rate_transition, scale_transition = args.scale_transition)
-	# 	else:
-	# 		print("Environment without noise")
-	# 		env = env
-	# 	with open(args.data_path, 'rb') as f:
-	# 		dataset = pickle.load(f)
-	# elif args.env == 'abiomed':
-	# 	env = AbiomedRLEnvFactory.create_env(
-	# 								model_name=args.model_name,
-	# 								model_path=args.model_path,
-	# 								data_path=args.data_path_wm,
-	# 								max_steps=args.max_steps,
-	# 								action_space_type="continuous",
-	# 								reward_type="smooth",
-	# 								normalize_rewards=True,
-	# 								seed=42
-	# 								)
-	# 	dataset = env.world_model.data_train
-	# 	dataset_val = env.world_model.data_val
-	# else:
-	# 	env = gym.make(args.env)
-	# 	dataset =  d4rl.qlearning_dataset(env)
-	# 	if args.env == "hopper-expert-v2":
-	# 		with open(args.data_path, 'rb') as f:
-	# 			dataset = pickle.load(f)
+
 	env, dataset = get_env_data(args)
 	work_dir = './runs/{}/{}/{}/alpha{}_seed{}_{}'.format(
      os.getcwd().split('/')[-1], args.folder, args.env, args.alpha, args.seed, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
@@ -194,6 +101,7 @@ if __name__ == "__main__":
 	np.random.seed(args.seed)
 	random.seed(args.seed)
 	
+	
 	state_dim = env.observation_space.shape[0]
 	action_dim = env.action_space.shape[0] 
 	max_action = float(env.action_space.high[0])
@@ -202,7 +110,7 @@ if __name__ == "__main__":
 
 	if args.env == "abiomed":
 		replay_buffer = utils.ReplayBufferAbiomed(state_dim, action_dim, device=device)
-		replay_buffer.convert_abiomed(dataset, env)
+		replay_buffer.convert_abiomed(dataset, env, args.fs)
 
 	else:
 		replay_buffer = utils.ReplayBuffer(state_dim, action_dim, device=device)
@@ -265,17 +173,14 @@ if __name__ == "__main__":
 		# Evaluate episode
 		if (t + 1) % args.eval_freq == 0:
 			print(f"Time steps: {t+1}")
-			d4rl_score = eval_policy(policy, args.env, args.seed, mean, std, eval_episodes=args.eval_episodes, plot=True if t == int(args.max_timesteps)-1 else False, writer=writer)
-			writer.add_scalar('eval/reward_score', d4rl_score, t)
+			d4rl_score = eval_policy(policy, env,  args.env, mean, std, args.seed, eval_episodes=args.eval_episodes, plot=True if t == int(args.max_timesteps)-1 else False, writer=writer)
+			writer.add_scalar('eval/reward_score', d4rl_score['avg_reward'], t)
 		#save policy
 	t0 = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 	# save_path = os.path.join(work_dir, f"SVR_{t+1}.pth")
 	if not os.path.exists(os.path.join(args.save_path, "SVR", save_path)):
 		os.makedirs(os.path.join(args.save_path, "SVR", save_path))
 	policy.save(os.path.join(args.save_path, "SVR", save_path, f"svr_seed_{args.seed}_{t0}_{t+1}.pth"))
-	# torch.save(policy.state_dict(), f"saved_models/{args.env}/svr_{t+1}_seed_{args.seed}_{t0}.pth")
-	# print(f"Saved policy to {save_path}")
+	print(f"Saved policy to {os.path.join(args.save_path, 'SVR', save_path, f'svr_seed_{args.seed}_{t0}_{t+1}.pth')}")
 	
-	# if args.env == 'abiomed':
-	# 	plot_policy(policy, args.env, args.seed, mean, std, seed_offset=100, eval_episodes=args.eval_episodes)
 	time.sleep( 10 )

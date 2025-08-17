@@ -66,6 +66,25 @@ class Critic(nn.Module):
 		q4 = self.l12(q4)
 		return q1, q2, q3, q4
 
+def energy_score_mean(qs):
+		"""
+		qs: tuple/list of 4 tensors, each [B, 1]
+		Returns: energy score [B]
+		"""
+		q_stack = torch.stack(qs, dim=0)   # [4, B, 1]
+		q_mean = q_stack.var(dim=0)       # [B, 1]
+		return q_mean # -torch.logsumexp(q_mean, dim=-1)  # [B]
+
+def energy_to_weights_pm1(energy):
+	"""
+	Normalize energy to [-1, 1] as a weight.
+	energy: [B] tensor
+	"""
+	e_min = energy.min()
+	e_max = energy.max()
+	w01 = (energy - e_min) / (e_max - e_min + 1e-8)  # [0,1]
+	w01 = 2 * w01  # [2,0]
+	return w01
 
 class SVR(object):
 	def __init__(
@@ -151,39 +170,10 @@ class SVR(object):
 	# 		# weight = np.minimum(weight, upper_bound)
 
 	# 	return torch.from_numpy(weight.astype(np.float32).reshape(-1, 1)).to(self.device)
-	def _return_kde_weight(self, state, action, reward=None):
-		
-		"""
-		Version with optimized IQR filtering.
-		"""
-		if self.classifier_name is None:
-			input_tensor = torch.cat([state, action.squeeze(1)], dim=1)
-		else:
-			input_tensor = torch.cat([action.squeeze(1), reward.view(-1, 1)], dim=1)
-		
-		input_np = input_tensor.cpu().numpy()
-		# log_probs = self.classifier_model.score_samples(input_np)
-		log_probs = self.classifier_model.score_samples(input_np)
-		# predictions = self.classifier_model.predict(input_np)
-		log_weight = self.classifier_thr - log_probs
-		weight = np.exp(log_weight)
-		
-		# Optimized IQR calculation
-		q1, q3 = np.percentile(weight, [25, 75])
-		upper_bound = q3 + 1.5 * (q3 - q1)
-		lower_bound = q1 - 1.5 * (q3 - q1)
-		# Fast in-place log-squash for outliers
-		weight = np.clip(weight, a_min=None, a_max=upper_bound)
-		# mask = weight > upper_bound
-		# np.subtract(weight, upper_bound, out=weight, where=mask)  # weight = weight - upper_bound (only where mask)
-		# np.log1p(weight, out=weight, where=mask)                   # weight = log1p(weight)
-		# weight[mask] += upper_bound                                # add upper_bound back (only where mask)
-
-		#make the weights between -1 1 with tanh function
-		weight = np.tanh(weight, out=weight)  # weight = tanh(weight)
-   
-		return torch.from_numpy(weight.astype(np.float32)).view(-1, 1).to(self.device, non_blocking=True)
-			
+	
+	# Example usage:
+	# q1, q2, q3, q4 are [B,1] tensors from your critic
+	
 
 	def train(self, batch_size=256, writer=None):
 		self.total_it += 1
@@ -222,11 +212,11 @@ class SVR(object):
 		
 		
 
-		current_Q1 = torch.clamp(current_Q1, Q_clamp_min, Q_clamp_max)
-		current_Q2 = torch.clamp(current_Q2, Q_clamp_min, Q_clamp_max)
-		current_Q3 = torch.clamp(current_Q3, Q_clamp_min, Q_clamp_max)
-		current_Q4 = torch.clamp(current_Q4, Q_clamp_min, Q_clamp_max)
-		current_Q1, current_Q2, current_Q3, current_Q4 = self.critic(state, action)
+		# current_Q1 = torch.clamp(current_Q1, Q_clamp_min, Q_clamp_max)
+		# current_Q2 = torch.clamp(current_Q2, Q_clamp_min, Q_clamp_max)
+		# current_Q3 = torch.clamp(current_Q3, Q_clamp_min, Q_clamp_max)
+		# current_Q4 = torch.clamp(current_Q4, Q_clamp_min, Q_clamp_max)
+		# current_Q1, current_Q2, current_Q3, current_Q4 = self.critic(state, action)
 		critic_loss =  F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q) + F.mse_loss(current_Q3, target_Q) + F.mse_loss(current_Q4, target_Q)
 		
 		u_Q = []
@@ -238,13 +228,13 @@ class SVR(object):
 		curr_Q = torch.cat([current_Q1,current_Q2,current_Q3,current_Q4], dim=1)
 		u_Q = torch.cat(u_Q, dim=1)
 		qmin = (torch.ones_like(curr_Q) * self.Q_min).detach()
-		uq = torch.stack([u_Q1, u_Q2, u_Q3, u_Q4], dim=1)
-		var_q = torch.var(uq,dim = 1)
-		var_norm = (var_q - var_q.min()) / (var_q.max() - var_q.min() + 1e-8)
-    
-		weight = 1.0 - 2.0 * var_norm
+		energy = energy_score_mean((current_Q1,current_Q2,current_Q3,current_Q4))
+		# weight = energy_to_weights_pm1(energy)
+	
+		weight = torch.exp(energy)
 		reg_diff = torch.clamp((u_Q-qmin)**2 - weight * (curr_Q-qmin)**2, min = -1e4) # 18%  gets clipped from below
 		reg_loss = self.alpha * reg_diff.mean()
+		# reg_loss = reg_diff.mean()
 		if self.total_it % 10000 == 0:
 			with torch.no_grad():
 				writer.add_scalar('train/critic_loss', critic_loss.item(), self.total_it)

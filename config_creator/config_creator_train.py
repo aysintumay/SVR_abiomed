@@ -33,20 +33,20 @@ if noise_type == "action_transition":
 seed: 1
 eval_episodes: 10
 data_path: "{data_path}"
+max_timesteps: 1000000
 
 transition: True
 noise_rate_transition: 1.0
 scale_transition: 0.005
-
+batch_size: 128
 action: True
 noise_rate_action: 0.5
 scale_action: 0.01
-
 alpha: 0.02
 
 """
     if algo_type == "svr_kde":
-        base_config = base_config + """classifier_model_name: trained_kde_action_obs"""
+        base_config = base_config + """classifier_model_name: {env}/trained_kde_action_obs"""
 elif noise_type == "action":
     environments = [
         {
@@ -68,15 +68,15 @@ elif noise_type == "action":
 seed: 1
 eval_episodes: 10
 data_path: "{data_path}"
-
+batch_size: 128
 action: True
 noise_rate_action: 1.0
 scale_action: 0.08
-
+max_timesteps: 1000000
 alpha: 0.02
 """
     if algo_type == "svr_kde":
-        base_config = base_config + """classifier_model_name: trained_kde_action"""
+        base_config = base_config + """classifier_model_name: {env}/trained_kde_action"""
 elif noise_type == "transition":
     environments = [
         {
@@ -98,14 +98,16 @@ elif noise_type == "transition":
 seed: 1
 eval_episodes: 10
 data_path: "{data_path}"
-
+batch_size: 128
+max_timesteps: 1000000
 transition: True
 noise_rate_transition: 1.0
 scale_transition: 0.005
 alpha: 0.02
+
 """
     if algo_type == "svr_kde":
-        base_config = base_config + """classifier_model_name: trained_kde_obs"""
+        base_config = base_config + """classifier_model_name: {env}/trained_kde_obs"""
 else:
     environments = [
         {
@@ -127,9 +129,11 @@ seed: 1
 eval_episodes: 10
 data_path: "{data_path}"
 alpha: 0.02
+batch_size: 128
+max_timesteps: 1000000
 """
     if algo_type == "svr_kde":
-            base_config = base_config + """classifier_model_name: trained_kde"""
+            base_config = base_config + """classifier_model_name: {env}/trained_kde"""
 
 
 # Directory to save the configuration files

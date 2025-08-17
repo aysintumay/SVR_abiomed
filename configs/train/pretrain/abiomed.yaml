@@ -1,0 +1,5 @@
+env: abiomed
+no_normalize: True
+eval_data: 0.1
+seed: 1
+num_iters: 9000

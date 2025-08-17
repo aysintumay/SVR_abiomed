@@ -22,7 +22,7 @@ import utils
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--env', type=str, default='abiomed')
-parser.add_argument('--seed', type=int, default=0)
+parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--num_iters', type=int, default=int(1e5))
 parser.add_argument('--batch_size', type=int, default=256)
 parser.add_argument('--lr', type=float, default=1e-3)
@@ -31,11 +31,13 @@ parser.add_argument('--eval_data', default=0.0, type=float) # proportion of data
 parser.add_argument('--devid', default=1, type=int)
 parser.add_argument("--data_path", type=str, default="")
 
-parser.add_argument("--model_name", type=str, default="10min_1hr_window")
+parser.add_argument("--model_name", type=str, default="10min_1hr_all_data")
 parser.add_argument("--model_path", type=str, default=None)
 parser.add_argument("--data_path_wm", type=str, default=None)
-parser.add_argument("--max_steps", type=int, default=24)
+parser.add_argument("--max_steps", type=int, default=6)
+parser.add_argument("--normalize_rewards", action='store_true', help="Normalize rewards in the Abiomed environment")
 parser.add_argument("--action_space_type", type=str, default="continuous", choices=["continuous", "discrete"], help="Type of action space for the environment") 
+parser.add_argument('--fs', action= "store_true", help= "Use feature selection for the policy model")
 
 parser.add_argument('--save_path', type=str, default='/abiomed/models/policy_models/', help='Path to save model and results')
 

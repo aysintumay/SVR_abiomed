@@ -1,0 +1,12 @@
+optimization_metric: density_range
+bandwidth: 1
+k_neighbors: 100
+plot: True
+save_model: trained_kde
+save_results: results.pkl
+
+data_path: /abiomed/intermediate_data_d4rl/farama_tqc_expert/HalfCheetah-v2_action_noisy_0.08_1.0.pkl
+env: HalfCheetah-v2
+
+action: True
+

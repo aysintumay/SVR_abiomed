@@ -1,7 +1,9 @@
 env: abiomed
 seed: 1
 eval_episodes: 10
+eval_freq: 10000
 alpha: 0.01
-max_timesteps: 500000
+max_timesteps: 400000
 no_normalize: True
-classifier_model_name: trained_kde_abiomed
+batch_size: 128
+classifier_model_name: abiomed/trained_kde_abiomed

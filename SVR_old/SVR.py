@@ -157,11 +157,10 @@ class SVR(object):
 		current_Q1, current_Q2, current_Q3, current_Q4 = self.critic(state, action)
 		
 		
-
-		current_Q1 = torch.clamp(current_Q1, Q_clamp_min, Q_clamp_max)
-		current_Q2 = torch.clamp(current_Q2, Q_clamp_min, Q_clamp_max)
-		current_Q3 = torch.clamp(current_Q3, Q_clamp_min, Q_clamp_max)
-		current_Q4 = torch.clamp(current_Q4, Q_clamp_min, Q_clamp_max)
+		# current_Q1 = torch.clamp(current_Q1, Q_clamp_min, Q_clamp_max)
+		# current_Q2 = torch.clamp(current_Q2, Q_clamp_min, Q_clamp_max)
+		# current_Q3 = torch.clamp(current_Q3, Q_clamp_min, Q_clamp_max)
+		# current_Q4 = torch.clamp(current_Q4, Q_clamp_min, Q_clamp_max)
 		critic_loss =  F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q) + F.mse_loss(current_Q3, target_Q) + F.mse_loss(current_Q4, target_Q)
 		
 		u_Q = []
@@ -208,7 +207,7 @@ class SVR(object):
 		# Optimize the critic
 		self.critic_optimizer.zero_grad()
 		critic_loss.backward()
-		# torch.nn.utils.clip_grad_norm_(self.critic.parameters(), max_norm=10.0)
+		torch.nn.utils.clip_grad_norm_(self.critic.parameters(), max_norm=10.0)
 
 		self.critic_optimizer.step()
 

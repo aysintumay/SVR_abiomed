@@ -1,12 +1,11 @@
 env: Hopper-v2
 seed: 1
 eval_episodes: 10
-max_timesteps: 1000000
 data_path: "/abiomed/intermediate_data_d4rl/farama_sac_expert/Hopper-v2_action_noisy_0.08_1.0.pkl"
-
+batch_size: 128
 action: True
 noise_rate_action: 1.0
 scale_action: 0.08
-
+max_timesteps: 1000000
 alpha: 0.02
 classifier_model_name: Hopper-v2/trained_kde_action

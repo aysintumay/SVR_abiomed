@@ -23,9 +23,16 @@ import sys
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from noisy_mujoco.abiomed_env.cost_func import overall_acp_cost
-from noisy_mujoco.abiomed_env.weaning_score import weaning_score
-
+from noisy_mujoco.abiomed_env.cost_func import (compute_acp_cost,
+                                                overall_acp_cost,
+                                                compute_map_model_air,
+                                                compute_hr_model_air,
+                                                compute_pulsatility_model_air,
+                                                aggregate_air_model,
+                                                weaning_score_model,
+                                                unstable_percentage_model,
+                                                    super_metric
+                                                    )
 
 def get_svr(args):
     
@@ -35,6 +42,7 @@ def get_svr(args):
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0] 
     max_action = float(env.action_space.high[0])
+
 
     if args.env == "abiomed":
         replay_buffer = utils.ReplayBufferAbiomed(state_dim, action_dim, device=device)
@@ -136,49 +144,115 @@ def get_bc(args):
     return behav, replay_buffer, env
 
 
-def eval_policy(policy, eval_env, env_name, mean, std, writer=None, seed_offset=100, eval_episodes=10, plot=None):
+def eval_policy(policy, eval_env, env_name, mean, std, seed_offset=100,
+                eval_episodes=10, plot=None, writer=None):
+    """
+    Evaluates policy and computes ACP, AIR metrics, Weaning score (abiomed env).
+    Requires:
+      - eval_env.episode_actions (list of actions from last episode)
+      - compute_* functions available in scope
+      - eval_env (or env) exposing `world_model` used by the AIR functions
+    """
 
     if env_name == 'abiomed':
-		
-        avg_reward = 0.
-        avg_acp = 0.
-        avg_weaning = 0.
-		
-        for k in range(eval_episodes):
-            state_ = []
-            next_state_ = []
+        avg_reward = 0.0
+        avg_acp = 0.0
 
-            (state, _), done = eval_env.reset(), False #state is normalized
-            # if k == np.random.randint(1, eval_episodes-1):
+        # ---- aggregated metrics over episodes ----
+        total_map_air_sum = 0.0
+        total_hr_air_sum = 0.0
+        total_pulsatility_air_sum = 0.0
+        total_aggregate_air_sum = 0.0
+        total_unstable_percentage_sum = 0.0
+        total_super_sum = 0.0
+        wean_score_sum = 0.0
+
+
+        for k in range(eval_episodes):
+            ep_states = []           # store normalized states per step (like in _evaluate)
+            (state, info), done = eval_env.reset(), False  # state is normalized
+            all_states = info['all_states']                # normalized
+            all_states = np.concatenate([state.reshape(1, -1), all_states], axis=0)
             truncated = False
-			
+
             while not (done or truncated):
-                state = (np.array(state).reshape(1,-1) - mean)/std
-                action = policy.select_action(state) #action is in [2,10], state is already normalized
+                # normalize state before policy (kept from your original code)
+                s_norm = (np.array(state).reshape(1, -1) - mean) / std
+                action = policy.select_action(s_norm)      # action in env's range
+
                 next_state, reward, done, truncated, _ = eval_env.step(action)
                 avg_reward += reward
 
-                state_.append(state)
-                next_state_.append(next_state)
+                ep_states.append(state)   # store the *current* obs like _evaluate
                 state = next_state
-            if (k == 2) & plot:
-                #unnormalize
-                max_steps = eval_env.max_steps
-                forecast_n = eval_env.world_model.forecast_horizon
-                action_unnorm  = np.repeat(eval_env.episode_actions,forecast_n)
-                state_unnorm = eval_env.world_model.unnorm_output(np.array(state_).reshape(max_steps, forecast_n, -1))
-                next_state_unnorm = eval_env.world_model.unnorm_output(np.array(next_state_).reshape(max_steps, forecast_n, -1))
-                utils.plot_policy(action_unnorm, state_unnorm, next_state_unnorm, writer)
-            # print([[eval_env.episode_actions]])
+            
+
+            # ---- per-episode metrics (same as _evaluate) ----
+            # ACP (per-timestep across the episode)
             avg_acp += overall_acp_cost([eval_env.episode_actions])
-            avg_weaning += weaning_score(eval_env.episode_actions, eval_env.episode_rewards)
+            
+
+            # Convert states list to numpy for AIR models
+            ep_states_np = np.asarray(ep_states, dtype=np.float32)
+
+            # NOTE: _evaluate uses env.world_model; if that's actually eval_env.world_model,
+            # change the following `env.world_model` to `eval_env.world_model`.
+            wm = getattr(eval_env, 'world_model', None)
+            if wm is None:
+                wm = env.world_model  # fallback to global `env` if that's how you access it
+
+            # AIR metrics
+            total_map_air_sum          += compute_map_model_air(wm, ep_states_np, eval_env.episode_actions)
+            total_hr_air_sum           += compute_hr_model_air(wm, ep_states_np, eval_env.episode_actions)
+            total_pulsatility_air_sum  += compute_pulsatility_model_air(wm, ep_states_np, eval_env.episode_actions)
+            total_aggregate_air_sum    += aggregate_air_model(wm, ep_states_np, eval_env.episode_actions)
+            total_super_sum            += super_metric(wm, ep_states_np, eval_env.episode_actions)
+
+            # Weaning + unstable percentage
+            wean_score_sum             += weaning_score_model(wm, ep_states_np, eval_env.episode_actions)
+            total_unstable_percentage_sum += unstable_percentage_model(wm, ep_states_np)
+
+            next_state_l = ep_states.copy()
+            next_state_l.append(state)
+            if (k == 2) and plot:
+                utils.plot_policy(eval_env, next_state_l[1:], all_states, writer)
+
+        # ---- episode averages ----
         avg_reward /= eval_episodes
-        acp = avg_acp / eval_episodes
-        wean_s = avg_weaning / eval_episodes
+        acp_mean = avg_acp / eval_episodes
+
+        map_air_mean          = total_map_air_sum / eval_episodes
+        hr_air_mean           = total_hr_air_sum / eval_episodes
+        puls_air_mean         = total_pulsatility_air_sum / eval_episodes
+        aggregate_air_mean    = total_aggregate_air_sum / eval_episodes
+        unstable_hours_mean   = total_unstable_percentage_sum / eval_episodes
+        weaning_score_mean    = wean_score_sum / eval_episodes
+        super_mean            = total_super_sum / eval_episodes
 
         print("---------------------------------------")
-        print(f"Evaluation over {eval_episodes} episodes: {avg_reward:.3f}, ACP score: {acp:.4f}, Weaning Score: {wean_s:.4f}")
+        print(f"Evaluation over {eval_episodes} episodes: "
+              f"Return {avg_reward:.3f}")
+        print(f"ACP {acp_mean:.4f}")
+        print(f"MAP AIR/ep: {map_air_mean:.5f} | HR AIR/ep: {hr_air_mean:.5f} "
+              f"| Pulsatility AIR/ep: {puls_air_mean:.5f}")
+        print(f"Aggregate AIR/ep: {aggregate_air_mean:.5f}")
+        print(f"Unstable hours (%): {unstable_hours_mean}")
+        print(f"Weaning score: {weaning_score_mean}")
+        print(f"Super metric: {super_mean:.5f}")
         print("---------------------------------------")
+
+        return {
+            "avg_reward": avg_reward,
+            "acp": acp_mean,
+            "map_air": map_air_mean,
+            "hr_air": hr_air_mean,
+            "pulsatility_air": puls_air_mean,
+            "aggregate_air": aggregate_air_mean,
+            "unstable_hours_pct": unstable_hours_mean,
+            "weaning_score": weaning_score_mean,
+            "super_metric": super_mean,
+        }
+
     else:
 
         avg_reward = 0.
@@ -196,60 +270,100 @@ def eval_policy(policy, eval_env, env_name, mean, std, writer=None, seed_offset=
         print("---------------------------------------")
         print(f"Evaluation over {eval_episodes} episodes: {avg_reward:.3f}, D4RL score: {avg_reward:.3f}")
         print("---------------------------------------")
-    return avg_reward
+        return {"avg_reward": avg_reward}
 
 def eval_bc(actor, eval_env, env_name, mean, std, writer=None, seed_offset=100, eval_episodes=10, plot=None):
     
     if env_name == 'abiomed':
-        avg_reward = 0.
-        avg_acp = 0.
-        avg_weaning = 0.
-        for k in range(eval_episodes):
-            state_ = []
-            next_state_ = []
+        avg_reward = 0.0
+        avg_acp = 0.0
 
-            (state, _), done = eval_env.reset(), False #state is normalized
-            # if k == np.random.randint(1, eval_episodes-1):
-            truncated = False
+        # ---- aggregated metrics over episodes ----
+        total_map_air = 0.0
+        total_hr_air = 0.0
+        total_puls_air = 0.0
+        total_agg_air = 0.0
+        total_unstable_pct = 0.0
+        total_wean_score = 0.0
+        total_super_sum = 0.0
+
+        for k in range(eval_episodes):
+            ep_states = []  # store normalized states over the episode (before step)
             
+            (state, info), done = eval_env.reset(), False  # state is normalized
+            all_states = info['all_states']                # normalized
+            all_states = np.concatenate([state.reshape(1, -1), all_states], axis=0)
+            truncated = False
+
             while not (done or truncated):
-                state = (np.array(state).reshape(1,-1) - mean)/std
-                eval_states_tensor = torch.Tensor(state).to(actor.device)
-                
+                s_norm = (np.array(state).reshape(1, -1) - mean) / std
+                eval_states_tensor = torch.tensor(s_norm, dtype=torch.float32, device=actor.device)
+
                 if eval_env.action_space_type == "discrete":
-                    # print(eval_states_tensor.max(), eval_states_tensor.min())
-                    
-                    action, _ = actor(eval_states_tensor, deterministic= True)
-                    # print("action", action)
+                    action, _ = actor(eval_states_tensor, deterministic=True)
                 else:
                     action = actor(eval_states_tensor)
 
+                ep_states.append(state) 
                 next_state, reward, done, truncated, _ = eval_env.step(action)
                 avg_reward += reward
-
-                state_.append(state)
-                next_state_.append(next_state)
                 state = next_state
+            next_state_l = ep_states.copy()
+            next_state_l.append(state)
+            # optional plot
+            if (k == 3) and plot:
+                utils.plot_policy(eval_env, next_state_l[1:], all_states, writer)
 
-            if (k == 3) & plot:
-                #unnormalize
-                max_steps = eval_env.max_steps
-                forecast_n = eval_env.world_model.forecast_horizon
-                action_unnorm  = np.repeat(eval_env.episode_actions,forecast_n)
-                state_unnorm = eval_env.world_model.unnorm_output(np.array(state_).reshape(max_steps, forecast_n, -1))
-                next_state_unnorm = eval_env.world_model.unnorm_output(np.array(next_state_).reshape(max_steps, forecast_n, -1))
-                utils.plot_policy(action_unnorm, state_unnorm, next_state_unnorm, writer)
-       
+            # ---- per-episode metrics ----
             avg_acp += overall_acp_cost([eval_env.episode_actions])
-            avg_weaning += weaning_score(eval_env.episode_actions, eval_env.episode_rewards)
-            
+
+            ep_states_np = np.asarray(ep_states, dtype=np.float32)
+            wm = getattr(eval_env, 'world_model', None)  # prefer eval_env.world_model
+            if wm is None:
+                wm = env.world_model  # fallback if stored globally
+
+            total_map_air        += compute_map_model_air(wm, ep_states_np, eval_env.episode_actions)
+            total_hr_air         += compute_hr_model_air(wm, ep_states_np, eval_env.episode_actions)
+            total_puls_air       += compute_pulsatility_model_air(wm, ep_states_np, eval_env.episode_actions)
+            total_agg_air        += aggregate_air_model(wm, ep_states_np, eval_env.episode_actions)
+            total_wean_score     += weaning_score_model(wm, ep_states_np, eval_env.episode_actions)
+            total_unstable_pct   += unstable_percentage_model(wm, ep_states_np)
+            total_super_sum            += super_metric(wm, ep_states_np, eval_env.episode_actions)
+
+        # ---- averages over episodes ----
         avg_reward /= eval_episodes
         acp = avg_acp / eval_episodes
-        wean_s = avg_weaning / eval_episodes
+
+        map_air_avg      = total_map_air / eval_episodes
+        hr_air_avg       = total_hr_air / eval_episodes
+        puls_air_avg     = total_puls_air / eval_episodes
+        agg_air_avg      = total_agg_air / eval_episodes
+        unstable_avg_pct = total_unstable_pct / eval_episodes
+        wean_avg         = total_wean_score / eval_episodes
+        super_avg        = total_super_sum / eval_episodes
 
         print("---------------------------------------")
-        print(f"Evaluation over {eval_episodes} episodes: {avg_reward:.3f}, ACP score: {acp:.4f}, Weaning Score: {wean_s:.4f}")
+        print(f"Evaluation over {eval_episodes} episodes:")
+        print(f"  Return: {avg_reward:.3f}")
+        print(f"  ACP score: {acp:.4f}")
+        print(f"  MAP AIR/ep: {map_air_avg:.5f} | HR AIR/ep: {hr_air_avg:.5f} | "
+            f"Pulsatility AIR/ep: {puls_air_avg:.5f}")
+        print(f"  Aggregate AIR/ep: {agg_air_avg:.5f}")
+        print(f"  Unstable hours (%): {unstable_avg_pct:.3f}")
+        print(f"  Weaning score: {wean_avg:.5f}")
+        print(f"  Super metric: {super_avg:.5f}")
         print("---------------------------------------")
+        return {
+            "avg_reward": avg_reward,
+            "acp": acp,
+            "map_air": map_air_avg,
+            "hr_air": hr_air_avg,
+            "pulsatility_air": puls_air_avg,
+            "aggregate_air": agg_air_avg,
+            "unstable_hours_pct": unstable_avg_pct,
+            "weaning_score": wean_avg,
+            "super_metric": super_avg,
+        }
     else:
         # eval_env = gym.make(env_name)
 
@@ -274,12 +388,12 @@ def eval_bc(actor, eval_env, env_name, mean, std, writer=None, seed_offset=100, 
         print("---------------------------------------")
         print(f"Evaluation over {eval_episodes} episodes: {avg_reward:.3f}, D4RL score: {avg_reward:.3f}")
         print("---------------------------------------")
-    return avg_reward
+    return {"avg_reward": avg_reward,}
 
 if __name__ == "__main__":
     print("Running", __file__)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default=None)
+    parser.add_argument('--config', type=str, default="configs/evaluation/bc/abiomed.yaml")
     args, remaining_argv = parser.parse_known_args()
 
     if args.config:
@@ -288,9 +402,8 @@ if __name__ == "__main__":
     else:
         config = {}
     #=========== SVR arguments ============
-    # parser.add_argument("--env", default="abiomed")        # OpenAI gym environment name
-    # parser.add_argument("--seed", default=1, type=int)              # Sets Gym, PyTorch and Numpy seeds
-    parser.add_argument("--eval_freq", default=100, type=int)       # How often (time steps) we evaluate
+    parser.add_argument("--env", default="abiomed")        # OpenAI gym environment name
+    parser.add_argument("--seed", default=1, type=int)              # Sets Gym, PyTorch and Numpy seeds
     # parser.add_argument("--eval_episodes", default=10, type=int)
     parser.add_argument("--discount", default=0.99)                 # Discount factor
     parser.add_argument("--tau", default=0.005)                     # Target network update rate
@@ -306,24 +419,26 @@ if __name__ == "__main__":
     parser.add_argument("--policy_path", type=str, default="/abiomed/models/policy_models/SVR_kde/abiomed/svr_kde_seed_1_2025-08-01_09-03-42_130000.pth")
 
     # #=========== noisy env arguments ============
-    # parser.add_argument("--noise_rate_action", type=float, help="Portion of action to be noisy with probability", default=0.01)
-    # parser.add_argument("--noise_rate_transition", type=float, help="Portion of transitions to be noisy with probability", default=0.01)
+    parser.add_argument("--noise_rate_action", type=float, help="Portion of action to be noisy with probability", default=0.01)
+    parser.add_argument("--noise_rate_transition", type=float, help="Portion of transitions to be noisy with probability", default=0.01)
     parser.add_argument("--loc", type=float, default=0.0, help="Mean of the noise distribution")
-    # parser.add_argument("--scale_action", type=float, default=0.001, help="Standard deviation of the action noise distribution")
-    # parser.add_argument("--scale_transition", type=float, default=0.001, help="Standard deviation of the transition noise distribution")
+    parser.add_argument("--scale_action", type=float, default=0.001, help="Standard deviation of the action noise distribution")
+    parser.add_argument("--scale_transition", type=float, default=0.001, help="Standard deviation of the transition noise distribution")
     parser.add_argument("--action", action='store_true', help="Create dataset with noisy actions")
     parser.add_argument("--transition", action='store_true', help="Create dataset with noisy transitions")
 
     # #============ abiomed environment arguments ============
-    parser.add_argument("--model_name", type=str, default="10min_1hr_window")
+    parser.add_argument("--model_name", type=str, default="10min_1hr_all_data")
     parser.add_argument("--model_path", type=str, default=None)
     parser.add_argument("--data_path_wm", type=str, default=None)
-    parser.add_argument("--max_steps", type=int, default=24)
+    parser.add_argument("--max_steps", type=int, default=6)
+    parser.add_argument("--normalize_rewards", action='store_true', help="Normalize rewards in the Abiomed environment")
+
     parser.add_argument("--action_space_type", type=str, default="continuous", choices=["continuous", "discrete"], help="Type of action space for the environment") 
 
     parser.add_argument('--save_path', type=str, default='/abiomed/models/policy_models/', help='Path to save model and results')
     #=========== SVR arguments ============
-    # parser.add_argument("--model_name_rl", type=str, default="svr", choices=["svr", "bc"], help="RL model to use for evaluation")
+    parser.add_argument("--model_name_rl", type=str, default="bc", choices=["svr", "bc"], help="RL model to use for evaluation")
 
     parser.set_defaults(**config)
     args = parser.parse_args(remaining_argv)
@@ -353,6 +468,14 @@ if __name__ == "__main__":
     else:
         # print(policy)
         reward = eval_bc(policy, env, args.env, mean, std, eval_episodes=args.eval_episodes, plot=True, writer=writer)
-    writer.add_scalar('eval/reward', reward, 0)
+    writer.add_scalar('eval/reward', reward['avg_reward'], 0)
+    if args.env == "abiomed":
+        writer.add_scalar('eval/acp', reward['acp'], 0)
+        writer.add_scalar('eval/map_air', reward['map_air'], 0)
+        writer.add_scalar('eval/hr_air', reward['hr_air'], 0)
+        writer.add_scalar('eval/pulsatility_air', reward['pulsatility_air'], 0)
+        writer.add_scalar('eval/aggregate_air', reward['aggregate_air'], 0)
+        writer.add_scalar('eval/unstable_hours_pct', reward['unstable_hours_pct'], 0)
+        writer.add_scalar('eval/weaning_score', reward['weaning_score'], 0)
 
     time.sleep( 10 )

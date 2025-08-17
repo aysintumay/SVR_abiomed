@@ -110,27 +110,39 @@ class ReplayBufferAbiomed(object):
 		)
 
 
-	def convert_abiomed(self, dataset, env, length=90):
+	def  convert_abiomed(self, dataset, env, fs=None):
 
-		
+		if isinstance(dataset, tuple):
+			
+			all_x = torch.cat([dataset[0].data, dataset[1].data, dataset[2].data], axis=0)
+			all_pl = torch.cat([dataset[0].pl, dataset[1].pl, dataset[2].pl], axis=0)
+			all_labels = torch.cat([dataset[0].labels, dataset[1].labels, dataset[2].labels], axis=0)
+			print(all_x.shape, all_pl.shape, all_labels.shape)
+		else:
+			all_x = dataset.data
+			all_pl = dataset.pl
+			all_labels = dataset.labels
+		if fs:
+			#select columns of 0 (MAP), 7 (PULSAT), 9 (HR) in all_x and all_labels
+			all_x = all_x[:, :, [0, 7, 9, 11]]
+			all_labels = all_labels.reshape(-1, self.timesteps, self.feature_dim-1)[:, :, [0, 7, 9]]
+			print("FEATURE SELECTION APPLIED FOR 0, 7, 9")
+			self.feature_dim = all_x.shape[2] # 0 (MAP), 7 (PULSAT), 9 (HR) + 1 (P-level)
+
 		reward_l = []
 		done_l = []
-
-
-		observation = dataset.data.reshape(-1,self.timesteps*(self.feature_dim))
-		next_observation = torch.cat([dataset.labels.reshape(-1, self.timesteps, self.feature_dim-1), dataset.pl.reshape(-1, self.timesteps, 1)], axis = 2)
+		observation = all_x.reshape(-1,self.timesteps*(self.feature_dim))
+		next_observation = torch.cat([all_labels.reshape(-1, self.timesteps, self.feature_dim-1), all_pl.reshape(-1, self.timesteps, 1)], axis = 2)
 		next_observation = next_observation.reshape(-1,self.timesteps*(self.feature_dim))
 		
-		action = dataset.pl
+		action = all_pl
 		#take one number with majority voting among 6 numbers
-		# if self.action_space_type == "continuous":
 		action_unnorm = np.array(env.world_model.unnorm_pl(action))
 		action = np.array([np.bincount(a.astype(int)).argmax() for a in action_unnorm]).reshape(-1,1)
 		#normalize back
 		action = env.world_model.normalize_pl(torch.Tensor(action))
 		
 		for i in tqdm.tqdm(range(action.shape[0])):
-		
 			reward = env._compute_reward(next_observation[i].reshape(-1,self.timesteps, self.feature_dim))
 			reward_l.append(reward)
 			done_l.append(np.array([0]))
@@ -188,7 +200,12 @@ def get_env_data(args, val=None):
 									seed=42,
 									device = f"cuda:{args.devid}" if torch.cuda.is_available() else "cpu",
 									)
-		dataset = env.world_model.data_train
+		dataset1 = env.world_model.data_train
+		dataset2 = env.world_model.data_val
+		dataset3 = env.world_model.data_test
+		dataset = (dataset1, dataset2, dataset3)
+		dataset = dataset1
+
 		if val:
 			print("Validation data is supported for Abiomed dataset")
 			dataset_val = env.world_model.data_test
@@ -197,6 +214,7 @@ def get_env_data(args, val=None):
 			print("No validation data for Abiomed dataset")
 			dataset_val = None
 			return env, dataset
+		
 	else:
 		env = gym.make(args.env)
 		dataset =  d4rl.qlearning_dataset(env)
@@ -206,34 +224,60 @@ def get_env_data(args, val=None):
 		return env, (dataset, dataset_val)
 
 
-def plot_policy(action, state, next_state, writer):
-
+def plot_policy(eval_env, state, all_states, writer):
+	"""
+	
+	Plot the policy for the given state and environment.
+	Args: 
+		eval_env: The evaluation environment.
+		state ([max_steps, forecast_horizon*num_features]): The predicted state to plot. Includes the first p-level.
+		all_states ([max_steps+1, forecast_horizon*num_features]): The real states including the first inputted state.
+		writer: The writer to log the plot.
+	"""
 
 	input_color = 'tab:blue'
-	pred_color = 'tab:orange' #label="input",
-	gt_color = 'tab:green'
-	rl_color = 'tab:red'
+	pred_color = 'tab:pink' #label="input",
+	gt_color = 'tab:red'
+	rl_color = 'darkblue'
+
+	
+	max_steps = eval_env.max_steps
+	forecast_n = eval_env.world_model.forecast_horizon
+	action_unnorm  = np.repeat(eval_env.episode_actions,forecast_n)
+	
+
+	state_unnorm = eval_env.world_model.unnorm_output(np.array(state).reshape(max_steps, forecast_n, -1))
+	all_state_unnorm = eval_env.world_model.unnorm_output(np.array(all_states).reshape(max_steps+1, forecast_n, -1))
+	first_action_unnorm = state_unnorm[0,:,-1] #normalized
 
 	fig, ax1 = plt.subplots(figsize = (8,5.8), dpi=300)
 									
 	default_x_ticks = range(0, 181, 18)
 	x_ticks = np.array(list(range(0, 31, 3)))
 	plt.xticks(default_x_ticks, x_ticks)
-	x1 = len(state[:, :, 0].reshape(-1,1))
-	# ax1.axvline(x=x1, linestyle='--', c='black', alpha =0.7)
+	x1 = len(all_state_unnorm[0, :, 0].reshape(-1,1))
+	x2 = len(all_state_unnorm[1:, :, 0].reshape(-1,1))
+	ax1.axvline(x=x1, linestyle='--', c='black', alpha =0.7)
 	
 
-	# plt.plot(range(x1), state[:, :, 0].reshape(-1,1), label ='Observed MAP', color=input_color)
-	plt.plot(range(0, x1), next_state[:, :, 0].reshape(-1,1),  label ='Predicted MAP', color=pred_color)
+	line_obs, = ax1.plot(range(0, x1+x2), all_state_unnorm[:, :, 0].reshape(-1,1), label ='Observed MAP', color=gt_color)
+	line_pred1, = ax1.plot(range(x1, x1+x2), state_unnorm[:, :, 0].reshape(-1,1), '--', label ='Predicted MAP', color=pred_color)
 	ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-	ax2.plot(range(0, x1), action.reshape(-1,1),'--',label ='Recommended PL', color=rl_color)
-	ax1.legend()
-	ax2.legend()
+	line_pl1, = ax2.plot(range(0, x1+x2),  all_state_unnorm[:,:,-1].reshape(-1),  label ='Input PL', color=input_color)
+	line_pl2, = ax2.plot(range(x1, x1+x2), action_unnorm.reshape(-1,1),'--',label ='Recommended PL', color=rl_color)
+
+	
+
+	# Combined legend for all lines
+	lines = [line_obs, line_pred1, line_pl1, line_pl2]
+	labels = ['Observed MAP', 'Predicted MAP', 'Input PL', 'Recommended PL']
+	ax1.legend(lines, labels, loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=2, fontsize='small')
 
 	ax1.set_ylabel('MAP (mmHg)',  )
 	ax2.set_ylabel('P-level',  )
 	ax1.set_xlabel('Time (hour)',)
 	ax1.set_title(f"MAP Prediction and P-level")
+	ax2.set_ylim(2, 10)
 	# wandb.log({f"plot_batch_{iter}": wandb.Image(fig)})
 
 	canvas = FigureCanvas(fig)

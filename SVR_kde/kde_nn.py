@@ -3,7 +3,7 @@
 Percentile-based threshold detection using FAISS KDE
 For anomaly detection without labels - finds threshold based on density percentiles
 """
-
+import yaml
 import numpy as np
 import torch
 import faiss
@@ -26,7 +26,7 @@ class PercentileThresholdKDE:
     KDE-based anomaly detection using percentile thresholds
     """
     def __init__(self, bandwidth=1.0, n_neighbors=100, use_gpu=True, 
-                 normalize=True, percentile=5.0, devid=0):
+                 normalize=True, percentile=5.0, pca=None, devid=0):
         self.bandwidth = bandwidth
         self.n_neighbors = n_neighbors
         self.use_gpu = use_gpu and faiss.get_num_gpus() > 0
@@ -38,7 +38,7 @@ class PercentileThresholdKDE:
         self.scaler = None
         self.threshold = None
         self.is_fitted = False
-        self.pca = None
+        self.pca = pca
         self.devid = devid
         
     def fit(self, X, verbose=True):
@@ -64,7 +64,7 @@ class PercentileThresholdKDE:
             X = self.scaler.fit_transform(X)
         
         #FIT PCA AND TRANSFORM DATA
-        if X.shape[1] > 17:
+        if (X.shape[1] > 30) and (self.pca):
             from sklearn.decomposition import PCA
             self.pca = PCA(n_components=7)
             self.pca.fit(X)
@@ -156,8 +156,7 @@ class PercentileThresholdKDE:
         
         if self.normalize and self.scaler is not None:
             X = self.scaler.transform(X)
-        
-        if self.pca is not None:
+        if self.pca:
             X = self.pca.transform(X)
         
         return self._score_samples_internal(X)
@@ -557,10 +556,18 @@ def find_optimal_percentile(X_train, X_val=None, percentiles=None, bandwidth=1.0
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Percentile-based KDE anomaly detection')
-    
+    print("Running", __file__)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, default="")
+    args, remaining_argv = parser.parse_known_args()
+
+    if args.config:
+        with open(args.config, 'r') as f:
+            config = yaml.safe_load(f)
+    else:
+        config = {}
     # Data loading arguments
-    parser.add_argument('--data_path', type=str, default = "/abiomed/intermediate_data_d4rl/farama_sac_expert/Hopper-v2_expert_1000.pkl",help='Path to data file')
+    # parser.add_argument('--data_path', type=str, default = "/abiomed/intermediate_data_d4rl/farama_sac_expert/Hopper-v2_expert_1000.pkl",help='Path to data file')
 
     # Data splitting arguments
     parser.add_argument('--test_size', type=float, default=0.2, help='Test set fraction')
@@ -571,21 +578,22 @@ def main():
     
     # Model arguments
     parser.add_argument('--percentile', type=float, default=5.0, help='Percentile threshold')
-    parser.add_argument('--bandwidth', type=float, default=1.0, help='KDE bandwidth')
-    parser.add_argument('--k_neighbors', type=int, default=100, help='Number of neighbors')
+    # parser.add_argument('--bandwidth', type=float, default=1.0, help='KDE bandwidth')
+    # parser.add_argument('--k_neighbors', type=int, default=100, help='Number of neighbors')
     parser.add_argument('--no_gpu', action='store_true', help='Disable GPU')
     parser.add_argument('--no_normalize', action='store_true', help='Disable data normalization')
     
     # Optimization arguments
     parser.add_argument('--optimize_percentile', action='store_true', 
                        help='Find optimal percentile')
-    parser.add_argument('--optimization_metric', choices=['density_range', 'stability', 'separation'],
-                       default='density_range', help='Metric for percentile optimization')
+    # parser.add_argument('--optimization_metric', choices=['density_range', 'stability', 'separation'],
+                    #    default='density_range', help='Metric for percentile optimization')
+    parser.add_argument('--pca', action='store_true')
     
     # Output arguments
     parser.add_argument('--plot', action='store_true', help='Generate plots')
-    parser.add_argument('--save_model', type=str, default="trained_kde", help='Save model path')
-    parser.add_argument('--save_results', type=str, help='Save results to file')
+    # parser.add_argument('--save_model', type=str, default="trained_kde", help='Save model path')
+    # parser.add_argument('--save_results', type=str, help='Save results to file')
     parser.add_argument('--devid', type=int, default=0, help='GPU device ID (if using GPU)')
     parser.add_argument('--save_path', type=str, default='/abiomed/models/kde', help='Path to save model and results')
     
@@ -606,7 +614,8 @@ def main():
     parser.add_argument("--max_steps", type=int, default=24)
     parser.add_argument("--action_space_type", type=str, default="continuous", choices=["continuous", "discrete"], help="Type of action space for the environment") 
 
-    args = parser.parse_args()
+    parser.set_defaults(**config)
+    args = parser.parse_args(remaining_argv)
     
     print("=== Percentile-Based KDE Anomaly Detection ===")
     
@@ -651,6 +660,7 @@ def main():
         use_gpu=not args.no_gpu,
         normalize=not args.no_normalize,
         percentile=percentile_to_use,
+        pca = args.pca,
         devid = args.devid
     )
     

@@ -200,9 +200,9 @@ class SVR(object):
 		with torch.no_grad():
 			noise = (torch.randn_like(u) * self.sample_std)
 			u = (u + noise).clamp(-self.max_action, self.max_action)
-			beta_prob = torch.exp(-torch.mean((self.behav(state)-action)**2, dim=1)/self.inv_gauss_coef)
-			pi_prob = torch.exp(-torch.mean((pi-action)**2, dim=1)/self.inv_gauss_coef)
-			isratio = torch.clamp(pi_prob / beta_prob, min=0.1)
+			# beta_prob = torch.exp(-torch.mean((self.behav(state)-action)**2, dim=1)/self.inv_gauss_coef)
+			# pi_prob = torch.exp(-torch.mean((pi-action)**2, dim=1)/self.inv_gauss_coef)
+			# isratio = torch.clamp(pi_prob / beta_prob, min=0.1)
 			# if self.snis:
 			# 	weight = isratio / isratio.mean() # for snis
 			# else:
@@ -223,14 +223,14 @@ class SVR(object):
 			target_Q = reward + not_done * self.discount * target_Q
 
 		# Get current Q estimates
-		current_Q1, current_Q2, current_Q3, current_Q4 = self.critic(state, action)
+		# current_Q1, current_Q2, current_Q3, current_Q4 = self.critic(state, action)
 		
 		
 
-		current_Q1 = torch.clamp(current_Q1, Q_clamp_min, Q_clamp_max)
-		current_Q2 = torch.clamp(current_Q2, Q_clamp_min, Q_clamp_max)
-		current_Q3 = torch.clamp(current_Q3, Q_clamp_min, Q_clamp_max)
-		current_Q4 = torch.clamp(current_Q4, Q_clamp_min, Q_clamp_max)
+		# current_Q1 = torch.clamp(current_Q1, Q_clamp_min, Q_clamp_max)
+		# current_Q2 = torch.clamp(current_Q2, Q_clamp_min, Q_clamp_max)
+		# current_Q3 = torch.clamp(current_Q3, Q_clamp_min, Q_clamp_max)
+		# current_Q4 = torch.clamp(current_Q4, Q_clamp_min, Q_clamp_max)
 		current_Q1, current_Q2, current_Q3, current_Q4 = self.critic(state, action)
 		critic_loss =  F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q) + F.mse_loss(current_Q3, target_Q) + F.mse_loss(current_Q4, target_Q)
 		

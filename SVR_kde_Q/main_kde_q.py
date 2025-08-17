@@ -127,7 +127,8 @@ if __name__ == "__main__":
 	parser.add_argument("--model_name", type=str, default="10min_1hr_window")
 	parser.add_argument("--model_path", type=str, default=None)
 	parser.add_argument("--data_path_wm", type=str, default=None)
-	parser.add_argument("--max_steps", type=int, default=24)
+	parser.add_argument("--max_steps", type=int, default=6)
+	parser.add_argument("--normalize_rewards", action='store_true', help="Normalize rewards in the Abiomed environment")
 	parser.add_argument("--action_space_type", type=str, default="continuous", choices=["continuous", "discrete"], help="Type of action space for the environment") 
 
 	# parser.add_argument('--classifier_path', type=str, default='/abiomed/models/', help='Path to save model and results')
