@@ -1,0 +1,17 @@
+{"time":"2025-08-27T00:00:16.022955415Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_000014-clivb8m1/logs/debug-core.log"}
+{"time":"2025-08-27T00:00:16.243065879Z","level":"INFO","msg":"created new stream","id":"clivb8m1"}
+{"time":"2025-08-27T00:00:16.24313558Z","level":"INFO","msg":"stream: started","id":"clivb8m1"}
+{"time":"2025-08-27T00:00:16.24317825Z","level":"INFO","msg":"writer: Do: started","stream_id":"clivb8m1"}
+{"time":"2025-08-27T00:00:16.243199191Z","level":"INFO","msg":"sender: started","stream_id":"clivb8m1"}
+{"time":"2025-08-27T00:00:16.243244711Z","level":"INFO","msg":"handler: started","stream_id":"clivb8m1"}
+{"time":"2025-08-27T00:00:16.496825645Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T00:00:16.986500914Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T00:00:16.987265526Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T00:00:17.250336352Z","level":"INFO","msg":"sender: sendAlert: notified scriptable run alert","data":{"notifyScriptableRunAlert":{"success":true}}}
+{"time":"2025-08-27T00:00:17.712324358Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T00:00:17.908206472Z","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-08-27T00:00:17.911903648Z","level":"INFO","msg":"stream: closing","id":"clivb8m1"}
+{"time":"2025-08-27T00:00:17.911937109Z","level":"INFO","msg":"handler: closed","stream_id":"clivb8m1"}
+{"time":"2025-08-27T00:00:17.91199088Z","level":"INFO","msg":"sender: closed","stream_id":"clivb8m1"}
+{"time":"2025-08-27T00:00:17.911971469Z","level":"INFO","msg":"writer: Close: closed","stream_id":"clivb8m1"}
+{"time":"2025-08-27T00:00:17.912167582Z","level":"INFO","msg":"stream: closed","id":"clivb8m1"}

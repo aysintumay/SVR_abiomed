@@ -1,0 +1,100 @@
+_wandb:
+    value:
+        cli_version: 0.19.8
+        m: []
+        python_version: 3.8.20
+        t:
+            "1":
+                - 1
+                - 55
+                - 100
+            "2":
+                - 1
+                - 55
+                - 100
+            "3":
+                - 2
+                - 16
+                - 23
+                - 55
+            "4": 3.8.20
+            "5": 0.19.8
+            "8":
+                - 5
+            "12": 0.19.8
+            "13": linux-x86_64
+action:
+    value: false
+action_space_type:
+    value: continuous
+alpha:
+    value: 0.006
+batch_size:
+    value: 256
+config:
+    value: configs/train/svr/abiomed.yaml
+data_path:
+    value: /abiomed/intermediate_data_d4rl/farama_sac_expert/Hopper-v2_expert_1000.pkl
+data_path_wm:
+    value: null
+devid:
+    value: 3
+discount:
+    value: 0.99
+env:
+    value: abiomed
+eval_episodes:
+    value: 10
+eval_freq:
+    value: 100
+folder:
+    value: train_rl
+fs:
+    value: false
+gamma1:
+    value:
+        - 0.05
+gamma2:
+    value:
+        - 0.2
+gamma3:
+    value:
+        - 0.1
+loc:
+    value: 0
+max_steps:
+    value: 6
+max_timesteps:
+    value: 200
+model_name:
+    value: 10min_1hr_all_data
+model_path:
+    value: null
+no_normalize:
+    value: true
+no_schedule:
+    value: false
+noise_rate_action:
+    value: 0.01
+noise_rate_transition:
+    value: 0.01
+normalize_rewards:
+    value: false
+policy_freq:
+    value: 2
+sample_std:
+    value: 0.5
+save_path:
+    value: /abiomed/models/policy_models/
+scale_action:
+    value: 0.001
+scale_transition:
+    value: 0.001
+seed:
+    value: 1
+snis:
+    value: false
+tau:
+    value: 0.005
+transition:
+    value: false

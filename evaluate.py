@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from noisy_mujoco.abiomed_env.cost_func import (compute_acp_cost,
                                                 overall_acp_cost,
+
                                                 compute_map_model_air,
                                                 compute_hr_model_air,
                                                 compute_pulsatility_model_air,
@@ -153,7 +154,7 @@ def eval_policy(policy, eval_env, env_name, mean, std, seed_offset=100,
       - compute_* functions available in scope
       - eval_env (or env) exposing `world_model` used by the AIR functions
     """
-
+    fig=None
     if env_name == 'abiomed':
         avg_reward = 0.0
         avg_acp = 0.0
@@ -170,7 +171,10 @@ def eval_policy(policy, eval_env, env_name, mean, std, seed_offset=100,
 
         for k in range(eval_episodes):
             ep_states = []           # store normalized states per step (like in _evaluate)
-            (state, info), done = eval_env.reset(), False  # state is normalized
+            if k == 100:
+                (state, info), done = eval_env.reset(idx=k), False  # state is normalized
+            else:
+                (state, info), done = eval_env.reset(), False
             all_states = info['all_states']                # normalized
             all_states = np.concatenate([state.reshape(1, -1), all_states], axis=0)
             truncated = False
@@ -179,7 +183,7 @@ def eval_policy(policy, eval_env, env_name, mean, std, seed_offset=100,
                 # normalize state before policy (kept from your original code)
                 s_norm = (np.array(state).reshape(1, -1) - mean) / std
                 action = policy.select_action(s_norm)      # action in env's range
-
+               
                 next_state, reward, done, truncated, _ = eval_env.step(action)
                 avg_reward += reward
 
@@ -189,7 +193,7 @@ def eval_policy(policy, eval_env, env_name, mean, std, seed_offset=100,
 
             # ---- per-episode metrics (same as _evaluate) ----
             # ACP (per-timestep across the episode)
-            avg_acp += overall_acp_cost([eval_env.episode_actions])
+            avg_acp += compute_acp_cost(eval_env.episode_actions)
             
 
             # Convert states list to numpy for AIR models
@@ -199,7 +203,7 @@ def eval_policy(policy, eval_env, env_name, mean, std, seed_offset=100,
             # change the following `env.world_model` to `eval_env.world_model`.
             wm = getattr(eval_env, 'world_model', None)
             if wm is None:
-                wm = env.world_model  # fallback to global `env` if that's how you access it
+                wm = eval_env.world_model  # fallback to global `env` if that's how you access it
 
             # AIR metrics
             total_map_air_sum          += compute_map_model_air(wm, ep_states_np, eval_env.episode_actions)
@@ -214,8 +218,8 @@ def eval_policy(policy, eval_env, env_name, mean, std, seed_offset=100,
 
             next_state_l = ep_states.copy()
             next_state_l.append(state)
-            if (k == 2) and plot:
-                utils.plot_policy(eval_env, next_state_l[1:], all_states, writer)
+            if (k==100) and plot:
+                fig = utils.plot_policy(eval_env, next_state_l[1:], all_states, "SVR", writer, False)
 
         # ---- episode averages ----
         avg_reward /= eval_episodes
@@ -251,7 +255,7 @@ def eval_policy(policy, eval_env, env_name, mean, std, seed_offset=100,
             "unstable_hours_pct": unstable_hours_mean,
             "weaning_score": weaning_score_mean,
             "super_metric": super_mean,
-        }
+        }, fig if fig is not None else None
 
     else:
 
@@ -273,7 +277,7 @@ def eval_policy(policy, eval_env, env_name, mean, std, seed_offset=100,
         return {"avg_reward": avg_reward}
 
 def eval_bc(actor, eval_env, env_name, mean, std, writer=None, seed_offset=100, eval_episodes=10, plot=None):
-    
+    fig=None
     if env_name == 'abiomed':
         avg_reward = 0.0
         avg_acp = 0.0
@@ -290,7 +294,10 @@ def eval_bc(actor, eval_env, env_name, mean, std, writer=None, seed_offset=100, 
         for k in range(eval_episodes):
             ep_states = []  # store normalized states over the episode (before step)
             
-            (state, info), done = eval_env.reset(), False  # state is normalized
+            if k == 100:
+                (state, info), done = eval_env.reset(idx=k), False  # state is normalized
+            else:
+                (state, info), done = eval_env.reset(), False
             all_states = info['all_states']                # normalized
             all_states = np.concatenate([state.reshape(1, -1), all_states], axis=0)
             truncated = False
@@ -311,11 +318,11 @@ def eval_bc(actor, eval_env, env_name, mean, std, writer=None, seed_offset=100, 
             next_state_l = ep_states.copy()
             next_state_l.append(state)
             # optional plot
-            if (k == 3) and plot:
-                utils.plot_policy(eval_env, next_state_l[1:], all_states, writer)
+            if (k==100) and plot:
+                fig = utils.plot_policy(eval_env, next_state_l[1:], all_states, 'BC', writer)
 
             # ---- per-episode metrics ----
-            avg_acp += overall_acp_cost([eval_env.episode_actions])
+            avg_acp += compute_acp_cost(eval_env.episode_actions)
 
             ep_states_np = np.asarray(ep_states, dtype=np.float32)
             wm = getattr(eval_env, 'world_model', None)  # prefer eval_env.world_model
@@ -363,7 +370,7 @@ def eval_bc(actor, eval_env, env_name, mean, std, writer=None, seed_offset=100, 
             "unstable_hours_pct": unstable_avg_pct,
             "weaning_score": wean_avg,
             "super_metric": super_avg,
-        }
+        },fig if fig is not None else None
     else:
         # eval_env = gym.make(env_name)
 
@@ -404,7 +411,7 @@ if __name__ == "__main__":
     #=========== SVR arguments ============
     parser.add_argument("--env", default="abiomed")        # OpenAI gym environment name
     parser.add_argument("--seed", default=1, type=int)              # Sets Gym, PyTorch and Numpy seeds
-    # parser.add_argument("--eval_episodes", default=10, type=int)
+    parser.add_argument("--eval_episodes", default=10, type=int)
     parser.add_argument("--discount", default=0.99)                 # Discount factor
     parser.add_argument("--tau", default=0.005)                     # Target network update rate
     parser.add_argument("--policy_freq", default=2, type=int)       # Frequency of delayed policy updates
@@ -432,8 +439,11 @@ if __name__ == "__main__":
     parser.add_argument("--model_path", type=str, default=None)
     parser.add_argument("--data_path_wm", type=str, default=None)
     parser.add_argument("--max_steps", type=int, default=6)
-    parser.add_argument("--normalize_rewards", action='store_true', help="Normalize rewards in the Abiomed environment")
+    parser.add_argument("--gamma1", type=float, default=0.0)
+    parser.add_argument("--gamma2", type=float, default=0.0)
+    parser.add_argument("--gamma3", type=float, default=0.0)
 
+    parser.add_argument("--normalize_rewards", action='store_true', help="Normalize rewards in the Abiomed environment")
     parser.add_argument("--action_space_type", type=str, default="continuous", choices=["continuous", "discrete"], help="Type of action space for the environment") 
 
     parser.add_argument('--save_path', type=str, default='/abiomed/models/policy_models/', help='Path to save model and results')
@@ -464,10 +474,10 @@ if __name__ == "__main__":
     else:
         mean,std = 0,1
     if args.model_name_rl == "svr":
-        reward = eval_policy(policy, env,  args.env, mean, std, eval_episodes=args.eval_episodes, plot=True, writer=writer)
+        reward, _ = eval_policy(policy, env,  args.env, mean, std, eval_episodes=args.eval_episodes, plot=True, writer=writer)
     else:
         # print(policy)
-        reward = eval_bc(policy, env, args.env, mean, std, eval_episodes=args.eval_episodes, plot=True, writer=writer)
+        reward, _ = eval_bc(policy, env, args.env, mean, std, eval_episodes=args.eval_episodes, plot=True, writer=writer)
     writer.add_scalar('eval/reward', reward['avg_reward'], 0)
     if args.env == "abiomed":
         writer.add_scalar('eval/acp', reward['acp'], 0)

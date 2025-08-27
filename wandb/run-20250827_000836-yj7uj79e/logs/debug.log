@@ -1,0 +1,44 @@
+2025-08-27 00:08:36,866 INFO    MainThread:1339626 [wandb_init.py:setup_run_log_directory():647] Logging user logs to /home/ubuntu/SVR/wandb/run-20250827_000836-yj7uj79e/logs/debug.log
+2025-08-27 00:08:36,866 INFO    MainThread:1339626 [wandb_init.py:setup_run_log_directory():648] Logging internal logs to /home/ubuntu/SVR/wandb/run-20250827_000836-yj7uj79e/logs/debug-internal.log
+2025-08-27 00:08:36,866 INFO    MainThread:1339626 [wandb_init.py:init():761] calling init triggers
+2025-08-27 00:08:36,866 INFO    MainThread:1339626 [wandb_init.py:init():766] wandb.init called with sweep_config: {}
+config: {'gamma1': 0.05, 'gamma2': 0.2, 'gamma3': 1, 'trial_id': 2, 'seed': 1, 'env': 'abiomed', '_wandb': {}}
+2025-08-27 00:08:36,866 INFO    MainThread:1339626 [wandb_init.py:init():773] finishing previous run: bbcynom0
+2025-08-27 00:08:36,866 INFO    MainThread:1339626 [wandb_run.py:_finish():2112] finishing run aysintumay-uc-san-diego/SVR_hpo/bbcynom0
+2025-08-27 00:08:36,867 INFO    MainThread:1339626 [wandb_run.py:_atexit_cleanup():2340] got exitcode: 0
+2025-08-27 00:08:36,867 INFO    MainThread:1339626 [wandb_run.py:_restore():2322] restore
+2025-08-27 00:08:36,867 INFO    MainThread:1339626 [wandb_run.py:_restore():2328] restore done
+2025-08-27 00:08:37,421 WARNING MainThread:1339626 [wandb_init.py:init():1472] interrupted
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/wandb_init.py", line 1468, in init
+    return wi.init(run_settings, run_config)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/wandb_init.py", line 774, in init
+    wandb.run.finish()
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/wandb_run.py", line 449, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/wandb_run.py", line 391, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/wandb_run.py", line 2106, in finish
+    return self._finish(exit_code)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/wandb_run.py", line 2127, in _finish
+    self._atexit_cleanup(exit_code=exit_code)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/wandb_run.py", line 2352, in _atexit_cleanup
+    self._on_finish()
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/wandb_run.py", line 2609, in _on_finish
+    wait_with_progress(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/mailbox/wait_with_progress.py", line 24, in wait_with_progress
+    return wait_all_with_progress(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/mailbox/wait_with_progress.py", line 70, in wait_all_with_progress
+    return _wait_handles(handle_list, timeout=progress_after)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/mailbox/wait_with_progress.py", line 110, in _wait_handles
+    results.append(handle.wait_or(timeout=remaining_timeout))
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/mailbox/mailbox_handle.py", line 122, in wait_or
+    return self._fn(self._handle.wait_or(timeout=timeout))
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/mailbox/response_handle.py", line 88, in wait_or
+    if not self._event.wait(timeout=timeout):
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/threading.py", line 558, in wait
+    signaled = self._cond.wait(timeout)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/threading.py", line 306, in wait
+    gotit = waiter.acquire(True, timeout)
+KeyboardInterrupt
+2025-08-27 00:08:37,616 INFO    MsgRouterThr:1339626 [mailbox.py:close():129] Closing mailbox, abandoning 3 handles.

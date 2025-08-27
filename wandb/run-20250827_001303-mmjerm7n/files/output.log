@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/SVR/hpo/hpo.py", line 289, in <module>
+    results_df, best_params, best_model_path = run_hyperparameter_search(args, gamma_ranges)
+  File "/home/ubuntu/SVR/hpo/hpo.py", line 106, in run_hyperparameter_search
+    gamma_combinations = list(product(gamma_ranges['gamma1'], gamma_ranges['gamma2'], gamma_ranges['gamma3']))
+TypeError: 'float' object is not iterable

@@ -1,0 +1,17 @@
+{"time":"2025-08-27T00:00:13.874825135Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_000013-6ium1pvl/logs/debug-core.log"}
+{"time":"2025-08-27T00:00:14.089757572Z","level":"INFO","msg":"created new stream","id":"6ium1pvl"}
+{"time":"2025-08-27T00:00:14.089825343Z","level":"INFO","msg":"stream: started","id":"6ium1pvl"}
+{"time":"2025-08-27T00:00:14.089878733Z","level":"INFO","msg":"sender: started","stream_id":"6ium1pvl"}
+{"time":"2025-08-27T00:00:14.089878093Z","level":"INFO","msg":"writer: Do: started","stream_id":"6ium1pvl"}
+{"time":"2025-08-27T00:00:14.089903894Z","level":"INFO","msg":"handler: started","stream_id":"6ium1pvl"}
+{"time":"2025-08-27T00:00:14.407280022Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T00:00:14.907228193Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T00:00:14.908050605Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T00:00:14.996429043Z","level":"INFO","msg":"sender: sendAlert: notified scriptable run alert","data":{"notifyScriptableRunAlert":{"success":true}}}
+{"time":"2025-08-27T00:00:15.811023146Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T00:00:15.910594333Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading summary, console lines 0-17","runtime_seconds":0.099301923}],"total_operations":1}}
+{"time":"2025-08-27T00:00:15.977576894Z","level":"INFO","msg":"stream: closing","id":"6ium1pvl"}
+{"time":"2025-08-27T00:00:15.977642205Z","level":"INFO","msg":"handler: closed","stream_id":"6ium1pvl"}
+{"time":"2025-08-27T00:00:15.977675366Z","level":"INFO","msg":"writer: Close: closed","stream_id":"6ium1pvl"}
+{"time":"2025-08-27T00:00:15.977686866Z","level":"INFO","msg":"sender: closed","stream_id":"6ium1pvl"}
+{"time":"2025-08-27T00:00:15.977823758Z","level":"INFO","msg":"stream: closed","id":"6ium1pvl"}

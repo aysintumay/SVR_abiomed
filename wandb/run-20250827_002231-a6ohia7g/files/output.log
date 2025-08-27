@@ -1,0 +1,16 @@
+Starting trial 0 with gamma1=0.05, gamma2=0.2, gamma3=0.1
+cuda:2
+In env continuous
+<module 'config' from '/home/ubuntu/noisy_mujoco/abiomed_env/config.py'>
+time series transformer device cuda:2
+Using device: cuda:2
+Trial 0 failed: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+Traceback (most recent call last):
+  File "/home/ubuntu/SVR/hpo/hpo.py", line 290, in <module>
+    results_df, best_params, best_model_path = run_hyperparameter_search(args, gamma_ranges)
+  File "/home/ubuntu/SVR/hpo/hpo.py", line 188, in run_hyperparameter_search
+    result_path = os.path.join(args.save_path, "SVR_hpo", save_path)
+UnboundLocalError: local variable 'save_path' referenced before assignment

@@ -1,0 +1,17 @@
+{"time":"2025-08-27T00:55:30.483040323Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_005526-ozhxeoh2/logs/debug-core.log"}
+{"time":"2025-08-27T00:55:30.697632023Z","level":"INFO","msg":"created new stream","id":"ozhxeoh2"}
+{"time":"2025-08-27T00:55:30.697699113Z","level":"INFO","msg":"stream: started","id":"ozhxeoh2"}
+{"time":"2025-08-27T00:55:30.697767614Z","level":"INFO","msg":"writer: Do: started","stream_id":"ozhxeoh2"}
+{"time":"2025-08-27T00:55:30.697799074Z","level":"INFO","msg":"handler: started","stream_id":"ozhxeoh2"}
+{"time":"2025-08-27T00:55:30.697799334Z","level":"INFO","msg":"sender: started","stream_id":"ozhxeoh2"}
+{"time":"2025-08-27T00:55:31.930949094Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T00:55:45.568902865Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T00:55:45.569935487Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T00:55:46.022743297Z","level":"INFO","msg":"sender: sendAlert: notified scriptable run alert","data":{"notifyScriptableRunAlert":{"success":true}}}
+{"time":"2025-08-27T00:55:46.572495901Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"updating run config","runtime_seconds":0.548923005},{"desc":"uploading output.log","runtime_seconds":0.273813999,"progress":"5.4KB/5.4KB"}],"total_operations":2}}
+{"time":"2025-08-27T00:55:47.209404073Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T00:55:47.565261697Z","level":"INFO","msg":"stream: closing","id":"ozhxeoh2"}
+{"time":"2025-08-27T00:55:47.565307657Z","level":"INFO","msg":"handler: closed","stream_id":"ozhxeoh2"}
+{"time":"2025-08-27T00:55:47.565344738Z","level":"INFO","msg":"sender: closed","stream_id":"ozhxeoh2"}
+{"time":"2025-08-27T00:55:47.565330508Z","level":"INFO","msg":"writer: Close: closed","stream_id":"ozhxeoh2"}
+{"time":"2025-08-27T00:55:47.56547871Z","level":"INFO","msg":"stream: closed","id":"ozhxeoh2"}

@@ -200,13 +200,6 @@ class SVR(object):
 		with torch.no_grad():
 			noise = (torch.randn_like(u) * self.sample_std)
 			u = (u + noise).clamp(-self.max_action, self.max_action)
-			# beta_prob = torch.exp(-torch.mean((self.behav(state)-action)**2, dim=1)/self.inv_gauss_coef)
-			# pi_prob = torch.exp(-torch.mean((pi-action)**2, dim=1)/self.inv_gauss_coef)
-			# isratio = torch.clamp(pi_prob / beta_prob, min=0.1)
-			# if self.snis:
-			# 	weight = isratio / isratio.mean() # for snis
-			# else:
-			# 	weight = isratio # for is
 			weight = self._return_kde_weight(state, u)
 
 			weight = weight.unsqueeze(1)
@@ -214,10 +207,10 @@ class SVR(object):
 		Q_clamp_min, Q_clamp_max = -1e3, 1e4  # safe rangetarget_Q = torch.clamp(target_Q, Q_clamp_min, Q_clamp_max)
 		with torch.no_grad():
 			target_Q1, target_Q2, target_Q3, target_Q4 = self.critic_target(next_state, next_action)
-			target_Q1 = torch.clamp(target_Q1, Q_clamp_min, Q_clamp_max)
-			target_Q2 = torch.clamp(target_Q2, Q_clamp_min, Q_clamp_max)
-			target_Q3 = torch.clamp(target_Q3, Q_clamp_min, Q_clamp_max)
-			target_Q4 = torch.clamp(target_Q4, Q_clamp_min, Q_clamp_max)
+			# target_Q1 = torch.clamp(target_Q1, Q_clamp_min, Q_clamp_max)
+			# target_Q2 = torch.clamp(target_Q2, Q_clamp_min, Q_clamp_max)
+			# target_Q3 = torch.clamp(target_Q3, Q_clamp_min, Q_clamp_max)
+			# target_Q4 = torch.clamp(target_Q4, Q_clamp_min, Q_clamp_max)
 			target_Q = torch.cat([target_Q1, target_Q2, target_Q3, target_Q4],dim=1)
 			target_Q,_ = torch.min(target_Q,dim=1,keepdim=True)
 			target_Q = reward + not_done * self.discount * target_Q
@@ -243,7 +236,7 @@ class SVR(object):
 		curr_Q = torch.cat([current_Q1,current_Q2,current_Q3,current_Q4], dim=1)
 		u_Q = torch.cat(u_Q, dim=1)
 		qmin = (torch.ones_like(curr_Q) * self.Q_min).detach()
-		reg_diff = torch.clamp((u_Q-qmin)**2 - weight * (curr_Q-qmin)**2, min = -1e4) # 18%  gets clipped from below
+		reg_diff = torch.clamp((u_Q-qmin)**2 - weight * (curr_Q-qmin)**2, min = -1e4) # if weight==1: reg_diff = 0 less penalty, if weight<1: reg_diff>0 more penalty
 		reg_loss = self.alpha * reg_diff.mean()
 		if self.total_it % 10000 == 0:
 			with torch.no_grad():

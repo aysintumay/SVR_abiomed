@@ -135,7 +135,7 @@ if __name__ == "__main__":
 	parser.add_argument("--transition", action='store_true', help="Create dataset with noisy transitions")
 
 	#============ abiomed environment arguments ============
-	parser.add_argument("--model_name", type=str, default="10min_1hr_window")
+	parser.add_argument("--model_name", type=str, default="10min_1hr_all_data")
 	parser.add_argument("--model_path", type=str, default=None)
 	parser.add_argument("--data_path_wm", type=str, default=None)
 	parser.add_argument("--max_steps", type=int, default=6)
@@ -259,10 +259,14 @@ if __name__ == "__main__":
 		# Evaluate episode
 		if (t + 1) % args.eval_freq == 0:
 			print(f"Time steps: {t+1}")
-			d4rl_score = eval_policy(policy, env, args.env,  mean, std, args.seed, eval_episodes=args.eval_episodes, plot=True if t == int(args.max_timesteps)-1 else False, writer = writer)
-			writer.add_scalar('eval/reward_score', d4rl_score, t)
-	t0 = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-	if not os.path.exists(os.path.join(args.save_path, "SVR_kde", save_path)):
-		os.makedirs(os.path.join(args.save_path, "SVR_kde", save_path))
-	policy.save(os.path.join(args.save_path, "SVR_kde", save_path, f"svr_kde_seed_{args.seed}_{t0}_{t+1}.pth"))
+			score_dict, _ = eval_policy(policy, env, args.env,  mean, std, args.seed, eval_episodes=args.eval_episodes, plot=True if t == int(args.max_timesteps)-1 else False, writer = writer)
+			writer.add_scalar('eval/reward_score', score_dict['avg_reward'], t)
+
+		if (t+1) % 100000 == 0 or t == int(args.max_timesteps)-1:
+			
+			t0 = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+			if not os.path.exists(os.path.join(args.save_path, "SVR_kde", save_path)):
+				os.makedirs(os.path.join(args.save_path, "SVR_kde", save_path))
+			policy.save(os.path.join(args.save_path, "SVR_kde", save_path, f"svr_kde_seed_{args.seed}_{t0}_{t+1}.pth"))
+			print(f"Model saved to {os.path.join(args.save_path, 'SVR_kde', save_path, f'svr_kde_seed_{args.seed}_{t0}_{t+1}.pth')}")
 	time.sleep( 10 )

@@ -1,0 +1,16 @@
+{"time":"2025-08-27T02:01:20.975753337Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_020120-ptl1zk9e/logs/debug-core.log"}
+{"time":"2025-08-27T02:01:21.201491238Z","level":"INFO","msg":"created new stream","id":"ptl1zk9e"}
+{"time":"2025-08-27T02:01:21.201625719Z","level":"INFO","msg":"stream: started","id":"ptl1zk9e"}
+{"time":"2025-08-27T02:01:21.201876372Z","level":"INFO","msg":"handler: started","stream_id":"ptl1zk9e"}
+{"time":"2025-08-27T02:01:21.201858572Z","level":"INFO","msg":"writer: Do: started","stream_id":"ptl1zk9e"}
+{"time":"2025-08-27T02:01:21.201982474Z","level":"INFO","msg":"sender: started","stream_id":"ptl1zk9e"}
+{"time":"2025-08-27T02:01:21.50011735Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T02:01:21.770625559Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T02:01:21.772096177Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T02:01:22.575959188Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T02:01:22.749134805Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading summary","runtime_seconds":0.172874544}],"total_operations":1}}
+{"time":"2025-08-27T02:01:22.888153675Z","level":"INFO","msg":"stream: closing","id":"ptl1zk9e"}
+{"time":"2025-08-27T02:01:22.888190466Z","level":"INFO","msg":"handler: closed","stream_id":"ptl1zk9e"}
+{"time":"2025-08-27T02:01:22.888217746Z","level":"INFO","msg":"writer: Close: closed","stream_id":"ptl1zk9e"}
+{"time":"2025-08-27T02:01:22.888369618Z","level":"INFO","msg":"sender: closed","stream_id":"ptl1zk9e"}
+{"time":"2025-08-27T02:01:22.888393478Z","level":"INFO","msg":"stream: closed","id":"ptl1zk9e"}

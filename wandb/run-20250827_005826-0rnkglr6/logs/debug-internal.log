@@ -1,0 +1,16 @@
+{"time":"2025-08-27T00:58:26.776052994Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_005826-0rnkglr6/logs/debug-core.log"}
+{"time":"2025-08-27T00:58:26.990962984Z","level":"INFO","msg":"created new stream","id":"0rnkglr6"}
+{"time":"2025-08-27T00:58:26.991043145Z","level":"INFO","msg":"stream: started","id":"0rnkglr6"}
+{"time":"2025-08-27T00:58:26.991135886Z","level":"INFO","msg":"writer: Do: started","stream_id":"0rnkglr6"}
+{"time":"2025-08-27T00:58:26.991231867Z","level":"INFO","msg":"sender: started","stream_id":"0rnkglr6"}
+{"time":"2025-08-27T00:58:26.991147676Z","level":"INFO","msg":"handler: started","stream_id":"0rnkglr6"}
+{"time":"2025-08-27T00:58:28.315513921Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T00:58:28.58277701Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T00:58:28.583856263Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T00:58:29.564599309Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading wandb-metadata.json","runtime_seconds":0.195897038,"progress":"2.0KB/2.0KB"},{"desc":"updating run config","runtime_seconds":0.189294398}],"total_operations":2}}
+{"time":"2025-08-27T00:58:31.126756025Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T00:58:31.450890467Z","level":"INFO","msg":"stream: closing","id":"0rnkglr6"}
+{"time":"2025-08-27T00:58:31.450938477Z","level":"INFO","msg":"handler: closed","stream_id":"0rnkglr6"}
+{"time":"2025-08-27T00:58:31.450982098Z","level":"INFO","msg":"writer: Close: closed","stream_id":"0rnkglr6"}
+{"time":"2025-08-27T00:58:31.451016178Z","level":"INFO","msg":"sender: closed","stream_id":"0rnkglr6"}
+{"time":"2025-08-27T00:58:31.45115963Z","level":"INFO","msg":"stream: closed","id":"0rnkglr6"}

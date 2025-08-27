@@ -1,0 +1,16 @@
+{"time":"2025-08-27T02:02:09.562856906Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_020208-zv01tupa/logs/debug-core.log"}
+{"time":"2025-08-27T02:02:09.778571592Z","level":"INFO","msg":"created new stream","id":"zv01tupa"}
+{"time":"2025-08-27T02:02:09.778634193Z","level":"INFO","msg":"stream: started","id":"zv01tupa"}
+{"time":"2025-08-27T02:02:09.778659033Z","level":"INFO","msg":"writer: Do: started","stream_id":"zv01tupa"}
+{"time":"2025-08-27T02:02:09.778714834Z","level":"INFO","msg":"handler: started","stream_id":"zv01tupa"}
+{"time":"2025-08-27T02:02:09.778779925Z","level":"INFO","msg":"sender: started","stream_id":"zv01tupa"}
+{"time":"2025-08-27T02:02:10.047094033Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T02:42:57.982031437Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T02:42:57.985280179Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T02:42:58.604117337Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T02:42:58.799049315Z","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-08-27T02:42:58.806832056Z","level":"INFO","msg":"stream: closing","id":"zv01tupa"}
+{"time":"2025-08-27T02:42:58.806915807Z","level":"INFO","msg":"handler: closed","stream_id":"zv01tupa"}
+{"time":"2025-08-27T02:42:58.806988508Z","level":"INFO","msg":"writer: Close: closed","stream_id":"zv01tupa"}
+{"time":"2025-08-27T02:42:58.807219271Z","level":"INFO","msg":"sender: closed","stream_id":"zv01tupa"}
+{"time":"2025-08-27T02:42:58.807281082Z","level":"INFO","msg":"stream: closed","id":"zv01tupa"}

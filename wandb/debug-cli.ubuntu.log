@@ -1,0 +1,183 @@
+2025-08-26 23:09:24 ERROR 400 response executing GraphQL.
+2025-08-26 23:09:24 ERROR {"errors":[{"message":"name required for project query","path":["project"]}],"data":{"project":null}}
+2025-08-26 23:09:24 ERROR Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/apis/normalize.py", line 25, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/internal/internal_api.py", line 1129, in sweep
+    response = self.gql(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/internal/internal_api.py", line 370, in gql
+    ret = self._retry_gql(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/lib/retry.py", line 134, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/internal/internal_api.py", line 398, in execute
+    return self.client.execute(*args, **kwargs)  # type: ignore
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/lib/gql_request.py", line 59, in execute
+    request.raise_for_status()
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.wandb.ai/graphql
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/cli/cli.py", line 104, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/cli/cli.py", line 1676, in agent
+    wandb_agent.agent(sweep_id, entity=entity, project=project, count=count)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/wandb_agent.py", line 567, in agent
+    return run_agent(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/wandb_agent.py", line 526, in run_agent
+    agent.run()
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/wandb_agent.py", line 193, in run
+    sweep_obj = self._api.sweep(self._sweep_id, "{}")
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/apis/internal.py", line 134, in sweep
+    return self.api.sweep(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/apis/normalize.py", line 42, in wrapper
+    raise CommError(message, error)
+wandb.errors.errors.CommError: HTTP 400: name required for project query
+
+2025-08-26 23:09:25 INFO Closing mailbox, abandoning 0 handles.
+2025-08-26 23:14:56 ERROR 400 response executing GraphQL.
+2025-08-26 23:14:56 ERROR {"errors":[{"message":"name required for project query","path":["project"]}],"data":{"project":null}}
+2025-08-26 23:14:56 ERROR Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/apis/normalize.py", line 25, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/internal/internal_api.py", line 1129, in sweep
+    response = self.gql(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/internal/internal_api.py", line 370, in gql
+    ret = self._retry_gql(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/lib/retry.py", line 134, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/internal/internal_api.py", line 398, in execute
+    return self.client.execute(*args, **kwargs)  # type: ignore
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/lib/gql_request.py", line 59, in execute
+    request.raise_for_status()
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.wandb.ai/graphql
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/cli/cli.py", line 104, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/cli/cli.py", line 1676, in agent
+    wandb_agent.agent(sweep_id, entity=entity, project=project, count=count)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/wandb_agent.py", line 567, in agent
+    return run_agent(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/wandb_agent.py", line 526, in run_agent
+    agent.run()
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/wandb_agent.py", line 193, in run
+    sweep_obj = self._api.sweep(self._sweep_id, "{}")
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/apis/internal.py", line 134, in sweep
+    return self.api.sweep(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/apis/normalize.py", line 42, in wrapper
+    raise CommError(message, error)
+wandb.errors.errors.CommError: HTTP 400: name required for project query
+
+2025-08-26 23:14:57 INFO Closing mailbox, abandoning 0 handles.
+2025-08-26 23:18:16 ERROR 400 response executing GraphQL.
+2025-08-26 23:18:16 ERROR {"errors":[{"message":"entityName required for project query","path":["project"]}],"data":{"project":null}}
+2025-08-26 23:18:16 ERROR Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/apis/normalize.py", line 25, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/internal/internal_api.py", line 1129, in sweep
+    response = self.gql(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/internal/internal_api.py", line 370, in gql
+    ret = self._retry_gql(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/lib/retry.py", line 134, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/internal/internal_api.py", line 398, in execute
+    return self.client.execute(*args, **kwargs)  # type: ignore
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/sdk/lib/gql_request.py", line 59, in execute
+    request.raise_for_status()
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.wandb.ai/graphql
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/cli/cli.py", line 104, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/cli/cli.py", line 1676, in agent
+    wandb_agent.agent(sweep_id, entity=entity, project=project, count=count)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/wandb_agent.py", line 567, in agent
+    return run_agent(
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/wandb_agent.py", line 526, in run_agent
+    agent.run()
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/wandb_agent.py", line 193, in run
+    sweep_obj = self._api.sweep(self._sweep_id, "{}")
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/apis/internal.py", line 134, in sweep
+    return self.api.sweep(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/wandb/apis/normalize.py", line 42, in wrapper
+    raise CommError(message, error)
+wandb.errors.errors.CommError: HTTP 400: entityName required for project query
+
+2025-08-26 23:18:17 INFO Closing mailbox, abandoning 0 handles.
+2025-08-26 23:22:27 INFO Running runs: []
+2025-08-26 23:22:27 INFO Agent received command: run
+2025-08-26 23:22:27 INFO Agent starting run with config:
+	gamma1: 0.05
+	gamma2: 0.2
+	gamma3: 1
+2025-08-26 23:22:27 INFO About to run command: /usr/bin/env python  --gamma1=0.05 --gamma2=0.2 --gamma3=1
+2025-08-26 23:22:32 INFO Running runs: ['dqikhrkz']
+2025-08-26 23:22:32 INFO Cleaning up finished run: dqikhrkz
+2025-08-26 23:22:32 INFO Closing mailbox, abandoning 0 handles.
+2025-08-26 23:22:33 INFO Agent received command: run
+2025-08-26 23:22:33 INFO Agent starting run with config:
+	gamma1: 0.2
+	gamma2: 0.7
+	gamma3: 0.1
+2025-08-26 23:22:33 INFO About to run command: /usr/bin/env python  --gamma1=0.2 --gamma2=0.7 --gamma3=0.1
+2025-08-26 23:22:38 INFO Running runs: ['ux6g0gto']
+2025-08-26 23:22:38 INFO Cleaning up finished run: ux6g0gto
+2025-08-26 23:22:38 INFO Agent received command: run
+2025-08-26 23:22:38 INFO Agent starting run with config:
+	gamma1: 0.05
+	gamma2: 0.5
+	gamma3: 1
+2025-08-26 23:22:38 INFO About to run command: /usr/bin/env python  --gamma1=0.05 --gamma2=0.5 --gamma3=1
+2025-08-26 23:22:43 INFO Running runs: ['y0kaqplp']
+2025-08-26 23:22:43 ERROR Detected 3 failed runs in the first 60 seconds, shutting down.
+2025-08-26 23:22:43 INFO To disable this check set WANDB_AGENT_DISABLE_FLAPPING=true
+2025-08-26 23:26:30 INFO Running runs: []
+2025-08-26 23:26:31 INFO Agent received command: run
+2025-08-26 23:26:31 INFO Agent starting run with config:
+	gamma1: 0.2
+	gamma2: 0.7
+	gamma3: 0.1
+2025-08-26 23:26:31 INFO About to run command: /usr/bin/env python  --gamma1=0.2 --gamma2=0.7 --gamma3=0.1
+2025-08-26 23:26:36 INFO Running runs: ['v9hv77c9']
+2025-08-26 23:26:36 INFO Cleaning up finished run: v9hv77c9
+2025-08-26 23:26:36 INFO Closing mailbox, abandoning 0 handles.
+2025-08-26 23:26:37 INFO Agent received command: run
+2025-08-26 23:26:37 INFO Agent starting run with config:
+	gamma1: 0.1
+	gamma2: 0.2
+	gamma3: 0.5
+2025-08-26 23:26:37 INFO About to run command: /usr/bin/env python  --gamma1=0.1 --gamma2=0.2 --gamma3=0.5
+2025-08-26 23:26:42 INFO Running runs: ['sjj8tn78']
+2025-08-26 23:26:42 INFO Cleaning up finished run: sjj8tn78
+2025-08-26 23:26:58 INFO Agent received command: run
+2025-08-26 23:26:58 INFO Agent starting run with config:
+	gamma1: 0.05
+	gamma2: 0.7
+	gamma3: 0.5
+2025-08-26 23:26:58 INFO About to run command: /usr/bin/env python  --gamma1=0.05 --gamma2=0.7 --gamma3=0.5
+2025-08-26 23:27:03 INFO Running runs: ['k44w236d']
+2025-08-26 23:27:03 ERROR Detected 3 failed runs in the first 60 seconds, shutting down.
+2025-08-26 23:27:03 INFO To disable this check set WANDB_AGENT_DISABLE_FLAPPING=true

@@ -2,6 +2,7 @@ env: abiomed
 seed: 1
 eval_episodes: 10
 eval_freq: 10000
-alpha: 0.02
+alpha: 0.006
+sample_std: 0.5
 no_normalize: True
-max_timesteps: 180000
+max_timesteps: 200000

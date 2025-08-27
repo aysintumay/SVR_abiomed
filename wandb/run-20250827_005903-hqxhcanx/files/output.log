@@ -1,0 +1,61 @@
+Starting trial 1 with gamma1=0.05, gamma2=0.2, gamma3=0.5
+cuda:7
+In env continuous
+<module 'config' from '/home/ubuntu/noisy_mujoco/abiomed_env/config.py'>
+time series transformer device cuda:7
+Using device: cuda:7
+/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/torch/nn/modules/transformer.py:307: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.self_attn.batch_first was not True(use batch_first for better inference performance)
+  warnings.warn(f"enable_nested_tensor is True, but self.use_nested_tensor is False because {why_not_sparsity_fast_path}")
+/home/ubuntu/noisy_mujoco/abiomed_env/model.py:402: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(path, map_location=self.device)
+Model loaded from /abiomed/downsampled/models/10min_1hr_all_data_model.pth
+loaded datasets with length
+ train:  12051
+ val:  1938
+ test:  3876
+Data loaded from /abiomed/downsampled/10min_1hr_all_data.pkl
+Continuous action space. Min action: -2.2312597235306466, Max action: 1.8085589693336617
+No validation data for Abiomed dataset
+0.05 0.2 0.5
+torch.Size([17865, 6, 12]) torch.Size([17865, 6]) torch.Size([17865, 66])
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 17865/17865 [00:08<00:00, 2160.69it/s]
+-4.428163142542622 165.93485669748776
+-2.736237 1.3035817
+-5.897560220908415 83.67061508289387
+-2.35 1.5392697494459262
+1.0 1.0
+/home/ubuntu/SVR/SVR_old/main.py:93: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  behav.load_state_dict(torch.load(bc_model_path))
+<module 'config' from '/home/ubuntu/noisy_mujoco/abiomed_env/config.py'>
+time series transformer device cuda:7
+Using device: cuda:7
+Model loaded from /abiomed/downsampled/models/10min_1hr_all_data_model.pth
+loaded datasets with length
+ train:  12051
+ val:  1938
+ test:  3876
+Data loaded from /abiomed/downsampled/10min_1hr_all_data.pkl
+Continuous action space. Min action: -2.2312597235306466, Max action: 1.8085589693336617
+EVAL ENVIRONMENT GAMMAS SET TO 0
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 200/200 [00:04<00:00, 46.66it/s]
+Time steps: 100
+---------------------------------------
+Evaluation over 10 episodes: Return 2.851
+ACP 0.6000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.80000
+Unstable hours (%): 0.0
+Weaning score: 0.02
+Super metric: 0.00000
+---------------------------------------
+Time steps: 200
+---------------------------------------
+Evaluation over 100 episodes: Return 0.696
+ACP 0.0000
+MAP AIR/ep: 0.08400 | HR AIR/ep: 0.01000 | Pulsatility AIR/ep: 0.00700
+Aggregate AIR/ep: 0.58800
+Unstable hours (%): 7.499999999999997
+Weaning score: -0.039833333333333346
+Super metric: 0.05000
+---------------------------------------
+Saved policy to /abiomed/models/policy_models/SVR_hpo/abiomed/2025-08-27_00-58-28/svr_seed_1_1_gamma1_0.05_gamma2_0.2_gamma3_0.5.pth

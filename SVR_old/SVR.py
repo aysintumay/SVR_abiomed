@@ -13,8 +13,8 @@ class Actor(nn.Module):
 	def __init__(self, state_dim, action_dim, max_action):
 		super(Actor, self).__init__()
 
-		self.l1 = nn.Linear(state_dim, 256)
-		self.l2 = nn.Linear(256, 256)
+		self.l1 = nn.Linear(state_dim, 512)
+		self.l2 = nn.Linear(512, 256)
 		self.l3 = nn.Linear(256, action_dim)
 		
 		self.max_action = max_action
@@ -30,20 +30,20 @@ class Critic(nn.Module):
 	def __init__(self, state_dim, action_dim):
 		super(Critic, self).__init__()
 
-		self.l1 = nn.Linear(state_dim + action_dim, 256)
-		self.l2 = nn.Linear(256, 256)
+		self.l1 = nn.Linear(state_dim + action_dim, 512)
+		self.l2 = nn.Linear(512, 256)
 		self.l3 = nn.Linear(256, 1)
 
-		self.l4 = nn.Linear(state_dim + action_dim, 256)
-		self.l5 = nn.Linear(256, 256)
+		self.l4 = nn.Linear(state_dim + action_dim, 512)
+		self.l5 = nn.Linear(512, 256)
 		self.l6 = nn.Linear(256, 1)
   
-		self.l7 = nn.Linear(state_dim + action_dim, 256)
-		self.l8 = nn.Linear(256, 256)
+		self.l7 = nn.Linear(state_dim + action_dim, 512)
+		self.l8 = nn.Linear(512, 256)
 		self.l9 = nn.Linear(256, 1)
 
-		self.l10 = nn.Linear(state_dim + action_dim, 256)
-		self.l11 = nn.Linear(256, 256)
+		self.l10 = nn.Linear(state_dim + action_dim, 512)
+		self.l11 = nn.Linear(512, 256)
 		self.l12 = nn.Linear(256, 1)
 
 	def forward(self, state, action):
@@ -111,16 +111,49 @@ class SVR(object):
 		self.sample_std = sample_std
 		self.inv_gauss_coef = 2 * (self.sample_std)**2
 		self.total_it = 0
+		# self.calibrate_sample_std_scalar(behav, replay_buffer)
 
+	def calibrate_sample_std_scalar(self, behav, replay_buffer, batches=64, batch_size=1024):
+		mses = []
+		behav.eval()
+		with torch.no_grad():
+			for _ in range(batches):
+				s, a, _, _, _ = replay_buffer.sample(batch_size)
+				mu = behav(s)                               # behavior policy mean
+				mse = ((a - mu) ** 2).mean(dim=1)           # per-sample MSE over action dims
+				mses.append(mse)
+		mse_all = torch.cat(mses)                           # shape [batches*batch_size]
+		sigma2 = torch.quantile(mse_all, 0.5).item()        # robust (median) per-dim variance
+		import math
+		# Set noise std used in u = pi + N(0, sample_std^2 I)
+		self.sample_std = math.sqrt(sigma2)
 
+		# You use MSE in the exponent -> inv_gauss_coef = 2 * σ^2 / d
+		self.inv_gauss_coef = 2.0 * sigma2 / float(self.action_dim)
+
+		return self.sample_std, self.inv_gauss_coef
+	
 	def select_action(self, state):
 		with torch.no_grad():
 			self.actor.eval()
 			state = torch.FloatTensor(state.reshape(1, -1)).to(self.device)
 			action = self.actor(state).cpu().data.numpy().flatten()
+			if not torch.isfinite(self.actor(state)).all():
+				print("[select_action] Actor output has non-finite values.")
+				# 1) check actor params
+				for name, p in self.critic.named_parameters():
+					if p.requires_grad and (torch.isnan(p).any() or torch.isinf(p).any()):
+						print(f"  -> BAD PARAM: {name}")
+						break
+				# 2) check actor buffers (e.g., BatchNorm running stats)
+				for name, b in self.critic.named_buffers():
+					if torch.isnan(b).any() or torch.isinf(b).any():
+						print(f"  -> BAD BUFFER: {name}")
+						break
+
 			self.actor.train()
 			return action
-
+	
 	def train(self, batch_size=256, writer=None):
 		self.total_it += 1
 
@@ -129,22 +162,39 @@ class SVR(object):
 		
 		next_action = self.actor_target(next_state).detach()
 		pi = self.actor(state).detach()
+		if not torch.isfinite(pi).all():
+			assert "Actor output has non-finite values."
+			raise ValueError("[train] Actor output has non-finite values.")
+		
 		u = pi.unsqueeze(1).repeat(1,self.num_sample,1)
 		with torch.no_grad():
 			noise = (torch.randn_like(u) * self.sample_std)
 			u = (u + noise).clamp(-self.max_action, self.max_action)
 			beta_prob = torch.exp(-torch.mean((self.behav(state)-action)**2, dim=1)/self.inv_gauss_coef)
 			pi_prob = torch.exp(-torch.mean((pi-action)**2, dim=1)/self.inv_gauss_coef)
+			if (beta_prob==0).any():
+				print("behav", (-torch.mean((self.behav(state)-action)**2, dim=1)/self.inv_gauss_coef).min())
+			
+				print('diff', ((self.behav(state)-action)**2).mean(), ((self.behav(state)-action)**2).min(), ((self.behav(state)-action)**2).max())
+
+
 			isratio = torch.clamp(pi_prob / beta_prob, min=0.1)
 			if self.snis:
 				weight = isratio / isratio.mean() # for snis
 			else:
 				weight = isratio # for is
 			weight = weight.unsqueeze(1)
+
+			if not torch.isfinite(weight).all():
+				print("[train] Weight has non-finite values.")
+				raise ValueError("[train] Weight has non-finite values.", self.total_it)
 		# Compute the target Q value
 		Q_clamp_min, Q_clamp_max = -1e3, 1e4  # safe rangetarget_Q = torch.clamp(target_Q, Q_clamp_min, Q_clamp_max)
 		with torch.no_grad():
 			target_Q1, target_Q2, target_Q3, target_Q4 = self.critic_target(next_state, next_action)
+			if not torch.isfinite(target_Q1).all():
+				print(target_Q1)
+				raise ValueError("[train] Critic target has non-finite values.")
 			# target_Q1 = torch.clamp(target_Q1, Q_clamp_min, Q_clamp_max)
 			# target_Q2 = torch.clamp(target_Q2, Q_clamp_min, Q_clamp_max)
 			# target_Q3 = torch.clamp(target_Q3, Q_clamp_min, Q_clamp_max)
@@ -152,10 +202,7 @@ class SVR(object):
 			target_Q = torch.cat([target_Q1, target_Q2, target_Q3, target_Q4],dim=1)
 			target_Q,_ = torch.min(target_Q,dim=1,keepdim=True)
 			target_Q = reward + not_done * self.discount * target_Q
-
-		# Get current Q estimates
 		current_Q1, current_Q2, current_Q3, current_Q4 = self.critic(state, action)
-		
 		
 		# current_Q1 = torch.clamp(current_Q1, Q_clamp_min, Q_clamp_max)
 		# current_Q2 = torch.clamp(current_Q2, Q_clamp_min, Q_clamp_max)
@@ -175,6 +222,8 @@ class SVR(object):
 		qmin = (torch.ones_like(curr_Q) * self.Q_min).detach()
 		reg_diff = torch.clamp((u_Q-qmin)**2 - weight * (curr_Q-qmin)**2, min = -1e4) #max clamp here
 		reg_loss = self.alpha * reg_diff.mean()
+		if not torch.isfinite(reg_loss):
+			raise ValueError("[train] Reg Loss has non-finite values.")
 		if self.total_it % 10000 == 0:
 			with torch.no_grad():
 				writer.add_scalar('train/critic_loss', critic_loss.item(), self.total_it)
@@ -196,6 +245,7 @@ class SVR(object):
 				Q_pinoise1 = torch.cat([Q_pinoise1_1, Q_pinoise1_2, Q_pinoise1_3, Q_pinoise1_4],dim=1)
 				Q_pinoise5_1, Q_pinoise5_2, Q_pinoise5_3, Q_pinoise5_4 = self.critic(state, pinoise5)
 				Q_pinoise5 = torch.cat([Q_pinoise5_1, Q_pinoise5_2, Q_pinoise5_3, Q_pinoise5_4],dim=1)
+				print(Q_pi.mean().item())
 				writer.add_scalar('Q/pi', Q_pi.mean().item(), self.total_it)
 				writer.add_scalar('Q/a', curr_Q.mean().item(), self.total_it)
 				writer.add_scalar('Q/unif', Q_unif.mean().item(), self.total_it)
@@ -204,19 +254,25 @@ class SVR(object):
 				writer.add_scalar('Q/pinoise0.1', Q_pinoise1.mean().item(), self.total_it)
 				writer.add_scalar('Q/pinoise0.5', Q_pinoise5.mean().item(), self.total_it)
 		critic_loss += reg_loss
+		# print('critic loss', critic_loss.item())
 		# Optimize the critic
 		self.critic_optimizer.zero_grad()
 		critic_loss.backward()
 		torch.nn.utils.clip_grad_norm_(self.critic.parameters(), max_norm=10.0)
-
 		self.critic_optimizer.step()
 
 		# Delayed policy updates
 		if self.total_it % self.policy_freq == 0:
 			# Compute actor loss
 			pi = self.actor(state)
+			if not torch.isfinite(pi).all():
+				
+				print("[train] PI has non-finite values.", self.total_it)
+
+				raise ValueError("[train]PI has non-finite values.")
 			if self.total_it <= 0:
 				actor_loss = ((pi - action) * (pi - action)).mean()
+				
 			else:
 				q1,q2,q3,q4 = self.critic(state, pi)
 				Q = torch.cat([q1,q2,q3,q4], dim=1)
@@ -224,9 +280,19 @@ class SVR(object):
 				lmbda = 2.5 / Q.abs().mean().detach() # follow TD3BC
 				actor_loss = -lmbda * Q.mean()
 
-			self.actor_optimizer.zero_grad()
-			actor_loss.backward()
-			self.actor_optimizer.step()
+			if not torch.isfinite(actor_loss):
+				self.actor_optimizer.zero_grad(set_to_none=True)
+				print("[train] Actor loss has non-finite values.", self.total_it)
+
+				raise ValueError("[train] Actor loss has non-finite values.")
+				
+			else:
+				self.actor_optimizer.zero_grad()
+				actor_loss.backward()
+				torch.nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=10.0)  # RE-ENABLE
+				# (Optional) snapshot to revert if step corrupts params
+				self.actor_optimizer.step()
+			
 			if self.schedule:
 				self.actor_lr_schedule.step()
 
@@ -261,3 +327,6 @@ class SVR(object):
 		self.actor_optimizer.load_state_dict(checkpoint['actor_optimizer'])
 		self.critic_optimizer.load_state_dict(checkpoint['critic_optimizer'])
 		self.total_it = checkpoint.get('total_it', 0)
+
+def finite(t): 
+    return torch.isfinite(t).all()

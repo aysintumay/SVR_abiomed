@@ -1,0 +1,7 @@
+{"time":"2025-08-27T06:02:37.287224137Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_060236-cyttosnx/logs/debug-core.log"}
+{"time":"2025-08-27T06:02:37.515926255Z","level":"INFO","msg":"created new stream","id":"cyttosnx"}
+{"time":"2025-08-27T06:02:37.515973996Z","level":"INFO","msg":"stream: started","id":"cyttosnx"}
+{"time":"2025-08-27T06:02:37.516023607Z","level":"INFO","msg":"writer: Do: started","stream_id":"cyttosnx"}
+{"time":"2025-08-27T06:02:37.516046547Z","level":"INFO","msg":"handler: started","stream_id":"cyttosnx"}
+{"time":"2025-08-27T06:02:37.516085837Z","level":"INFO","msg":"sender: started","stream_id":"cyttosnx"}
+{"time":"2025-08-27T06:02:37.692520461Z","level":"INFO","msg":"Starting system monitor"}

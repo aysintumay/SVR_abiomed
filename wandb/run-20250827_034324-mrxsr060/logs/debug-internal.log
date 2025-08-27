@@ -1,0 +1,17 @@
+{"time":"2025-08-27T03:43:25.18270407Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_034324-mrxsr060/logs/debug-core.log"}
+{"time":"2025-08-27T03:43:25.401096327Z","level":"INFO","msg":"created new stream","id":"mrxsr060"}
+{"time":"2025-08-27T03:43:25.40131108Z","level":"INFO","msg":"stream: started","id":"mrxsr060"}
+{"time":"2025-08-27T03:43:25.401439632Z","level":"INFO","msg":"writer: Do: started","stream_id":"mrxsr060"}
+{"time":"2025-08-27T03:43:25.401458472Z","level":"INFO","msg":"handler: started","stream_id":"mrxsr060"}
+{"time":"2025-08-27T03:43:25.401470943Z","level":"INFO","msg":"sender: started","stream_id":"mrxsr060"}
+{"time":"2025-08-27T03:43:25.702840429Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T03:43:36.419696387Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T03:43:36.420400046Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T03:43:36.500614187Z","level":"INFO","msg":"sender: sendAlert: notified scriptable run alert","data":{"notifyScriptableRunAlert":{"success":true}}}
+{"time":"2025-08-27T03:43:37.095481269Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T03:43:37.276417955Z","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-08-27T03:43:37.281241139Z","level":"INFO","msg":"stream: closing","id":"mrxsr060"}
+{"time":"2025-08-27T03:43:37.28128099Z","level":"INFO","msg":"handler: closed","stream_id":"mrxsr060"}
+{"time":"2025-08-27T03:43:37.28131631Z","level":"INFO","msg":"writer: Close: closed","stream_id":"mrxsr060"}
+{"time":"2025-08-27T03:43:37.281414832Z","level":"INFO","msg":"sender: closed","stream_id":"mrxsr060"}
+{"time":"2025-08-27T03:43:37.281437162Z","level":"INFO","msg":"stream: closed","id":"mrxsr060"}

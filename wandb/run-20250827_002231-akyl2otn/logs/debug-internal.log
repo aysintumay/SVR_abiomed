@@ -1,0 +1,16 @@
+{"time":"2025-08-27T00:22:31.139153992Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_002231-akyl2otn/logs/debug-core.log"}
+{"time":"2025-08-27T00:22:31.357912432Z","level":"INFO","msg":"created new stream","id":"akyl2otn"}
+{"time":"2025-08-27T00:22:31.358033903Z","level":"INFO","msg":"stream: started","id":"akyl2otn"}
+{"time":"2025-08-27T00:22:31.358316217Z","level":"INFO","msg":"writer: Do: started","stream_id":"akyl2otn"}
+{"time":"2025-08-27T00:22:31.358506269Z","level":"INFO","msg":"sender: started","stream_id":"akyl2otn"}
+{"time":"2025-08-27T00:22:31.358396828Z","level":"INFO","msg":"handler: started","stream_id":"akyl2otn"}
+{"time":"2025-08-27T00:22:31.636428401Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T00:22:31.902776432Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T00:22:31.904725127Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T00:22:32.872631917Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading config.yaml","runtime_seconds":0.207818876,"progress":"1.6KB/1.6KB"}],"total_operations":1}}
+{"time":"2025-08-27T00:22:32.907973009Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T00:22:33.079594141Z","level":"INFO","msg":"stream: closing","id":"akyl2otn"}
+{"time":"2025-08-27T00:22:33.079634732Z","level":"INFO","msg":"handler: closed","stream_id":"akyl2otn"}
+{"time":"2025-08-27T00:22:33.079662602Z","level":"INFO","msg":"sender: closed","stream_id":"akyl2otn"}
+{"time":"2025-08-27T00:22:33.079653082Z","level":"INFO","msg":"writer: Close: closed","stream_id":"akyl2otn"}
+{"time":"2025-08-27T00:22:33.079751583Z","level":"INFO","msg":"stream: closed","id":"akyl2otn"}

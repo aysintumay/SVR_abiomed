@@ -1,0 +1,31 @@
+repos:
+  # -------------------
+  # 1. Basic Code Hygiene Hooks
+  # -------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace        # Remove extra spaces
+      - id: end-of-file-fixer         # Ensure newline at EOF
+      - id: check-yaml               # Validate YAML configs
+      - id: check-json               # Validate JSON files
+      - id: check-added-large-files  # Prevent committing big files (>5MB)
+
+  # -------------------
+  # 2. Format Code with Black
+  # -------------------
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
+    hooks:
+      - id: black
+        language_version: python3
+
+  # -------------------
+  # 3. Lint with Flake8
+  # -------------------
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-bugbear]
+        args: ["--max-line-length=120"]

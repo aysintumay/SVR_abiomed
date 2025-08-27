@@ -311,9 +311,11 @@ def load_data(data_path, test_size, validation_size, args=None):
 
         state_dim = env.observation_space.shape[0]
         action_dim = env.action_space.shape[0] 
-
+        # data = data[0] #only get train set
+        # print(len(data.data))
         replay_buffer = ReplayBufferAbiomed(state_dim, action_dim)
         replay_buffer.convert_abiomed(data, env)
+        
         X = np.concatenate([replay_buffer.state, replay_buffer.action], axis=1)
     else:
         with open(data_path, 'rb') as f:
@@ -323,36 +325,53 @@ def load_data(data_path, test_size, validation_size, args=None):
    
     n_samples = len(X)
     
-    
     # Sequential split for time series data
-    test_end = int(n_samples * (1 - test_size))
-    val_end = int(test_end * (1 - validation_size))
+    # test_end = int(n_samples * (1 - test_size))
+    # val_end = int(test_end * (1 - validation_size))
     
-    train_idx = np.arange(0, val_end)
-    val_idx = np.arange(val_end, test_end)
-    test_idx = np.arange(test_end, n_samples) 
-    
-    
+    # train_idx = np.arange(0, val_end)
+    # val_idx = np.arange(val_end, test_end)
+    # test_idx = np.arange(test_end, n_samples) 
+    #randomly shuffle 
+   
+       
+    if args.temporal_split:
+        # Temporal split (no shuffle)
+        test_end = int(n_samples * (1 - test_size))
+        val_end = int(test_end * (1 - validation_size))
+        
+        train_idx = np.arange(0, val_end)
+        val_idx = np.arange(val_end, test_end)
+        test_idx = np.arange(test_end, n_samples)
+        X_train = X[train_idx]
+        X_val = X[val_idx] if len(val_idx) > 0 else None
+        X_test = X[test_idx]
+    else:
+        #train_test_split
+        from sklearn.model_selection import train_test_split
+        # Shuffle and split data
+        X_train, X_test_val = train_test_split(X, test_size=test_size+validation_size, random_state=args.random_seed, shuffle=True)
+        if validation_size > 0:
+            X_val, X_test = train_test_split(X_test_val, test_size=test_size/(test_size+validation_size), random_state=args.random_seed, shuffle=True)
+        else:
+            val_idx = np.array([])
+        
     # Ensure 2D array
     if X.ndim == 1:
         X = X.reshape(-1, 1)
-
-    X_train = X[train_idx]
-    X_val = X[val_idx] if len(val_idx) > 0 else None
-    X_test = X[test_idx]
     
     return {
         'X_train': X_train,
         'X_val': X_val,
         'X_test': X_test,
-        'train_idx': train_idx,
-        'val_idx': val_idx,
-        'test_idx': test_idx,
+        # 'train_idx': train_idx,
+        # 'val_idx': val_idx,
+        # 'test_idx': test_idx,
         'split_info': {
             'total_samples': n_samples,
-            'train_samples': len(train_idx),
-            'val_samples': len(val_idx),
-            'test_samples': len(test_idx),
+            'train_samples': len(X_train),
+            'val_samples': len(X_val),
+            'test_samples': len(X_test),
         }
     }
 
@@ -608,10 +627,10 @@ def main():
     parser.add_argument("--env", type=str, default="")
 
     #============ abiomed environment arguments ============
-    parser.add_argument("--model_name", type=str, default="10min_1hr_window")
+    parser.add_argument("--model_name", type=str, default="10min_1hr_all_data")
     parser.add_argument("--model_path", type=str, default=None)
     parser.add_argument("--data_path_wm", type=str, default=None)
-    parser.add_argument("--max_steps", type=int, default=24)
+    parser.add_argument("--max_steps", type=int, default=6)
     parser.add_argument("--action_space_type", type=str, default="continuous", choices=["continuous", "discrete"], help="Type of action space for the environment") 
 
     parser.set_defaults(**config)

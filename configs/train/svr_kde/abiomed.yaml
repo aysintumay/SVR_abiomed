@@ -6,4 +6,4 @@ alpha: 0.01
 max_timesteps: 400000
 no_normalize: True
 batch_size: 128
-classifier_model_name: abiomed/trained_kde_abiomed
+classifier_model_name: abiomed/trained_kde_abiomed_1

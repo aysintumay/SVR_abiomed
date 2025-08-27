@@ -1,8 +1,9 @@
 optimization_metric: density_range
 bandwidth: 1
 k_neighbors: 100
+temporal_split: False
 plot: True
 save_model: trained_kde
 save_results: results.pkl
-data_path: "/abiomed/downsampled/10min_1hr_window.pkl"
+data_path: "/abiomed/downsampled/10min_1hr_all_data.pkl"
 env: abiomed

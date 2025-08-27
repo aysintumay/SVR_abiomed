@@ -94,6 +94,7 @@ class SVR(object):
 		max_action,
 		replay_buffer,
 		behav,
+		classifier,
 		Q_min,
 		device,
 		discount=0.99,
@@ -122,6 +123,9 @@ class SVR(object):
 		self.policy_freq = policy_freq
 		self.Q_min=Q_min
 		self.behav = behav
+		self.classifier_model = classifier['model']
+		self.classifier_thr= classifier['thr']
+		self.classifier_name = self.classifier['name'] if 'name' in classifier else None
 		self.actor_lr_schedule = CosineAnnealingLR(self.actor_optimizer, int(int(1e6)/self.policy_freq))
 		self.schedule = schedule
 		self.snis = snis
@@ -140,39 +144,38 @@ class SVR(object):
 			self.actor.train()
 			return action
 		
-	# def _return_kde_weight(self, state, action, reward=None):
-	# 	"""
-	# 	Compute the weight for each action based on the KDE of the behavior policy.
-	# 	Optimized for speed.
-	# 	"""
-	# 	with torch.no_grad():
-	# 		state_np = state.detach().cpu().numpy()
-	# 		action_np = action.squeeze(1).detach().cpu().numpy()
+	def _return_kde_weight(self, state, action, reward=None):
+		
+		"""
+		Version with optimized IQR filtering.
+		"""
+		if self.classifier_name is None:
+			input_tensor = torch.cat([state, action.squeeze(1)], dim=1)
+		else:
+			input_tensor = torch.cat([action.squeeze(1), reward.view(-1, 1)], dim=1)
+		
+		input_np = input_tensor.cpu().numpy()
+		# log_probs = self.classifier_model.score_samples(input_np)
+		log_probs = self.classifier_model.score_samples(input_np) #higher means high density
+		# predictions = self.classifier_model.predict(input_np)
+		log_weight = self.classifier_thr - log_probs
+		weight = np.exp(log_weight) #smaller means less dense
+		
+		# Optimized IQR calculation
+		q1, q3 = np.percentile(weight, [25, 75])
+		upper_bound = q3 + 1.5 * (q3 - q1)
+		lower_bound = q1 - 1.5 * (q3 - q1)
+		# Fast in-place log-squash for outliers
+		weight = np.clip(weight, a_min=None, a_max=upper_bound)
+		# mask = weight > upper_bound
+		# np.subtract(weight, upper_bound, out=weight, where=mask)  # weight = weight - upper_bound (only where mask)
+		# np.log1p(weight, out=weight, where=mask)                   # weight = log1p(weight)
+		# weight[mask] += upper_bound                                # add upper_bound back (only where mask)
 
-	# 		if self.classifier_name is None:
-	# 			input_np = np.concatenate([state_np, action_np], axis=1)
-	# 			log_probs = self.classifier_model.score_samples(input_np)
-	# 		else:
-	# 			reward_np = reward.view(-1, 1).detach().cpu().numpy()
-	# 			input_np = np.concatenate([action_np, reward_np], axis=1)
-	# 			log_probs = self.classifier_model.score_samples(input_np)
-
-	# 		# Use log-space to avoid exp overflow
-	# 		log_thr = self.classifier_thr
-	# 		log_weight = log_thr - log_probs  # log(exp(thr)/exp(log_prob)) = thr - log_prob
-	# 		weight = np.exp(np.clip(log_weight, a_min=None, a_max=10))  # Cap max weight to avoid overflow
-
-	# 		# # Efficient IQR-based outlier filter
-	# 		# q1 = np.percentile(weight, 25)
-	# 		# q3 = np.percentile(weight, 75)
-	# 		# iqr = q3 - q1
-	# 		# upper_bound = q3 + 1.5 * iqr
-	# 		# weight = np.minimum(weight, upper_bound)
-
-	# 	return torch.from_numpy(weight.astype(np.float32).reshape(-1, 1)).to(self.device)
-	
-	# Example usage:
-	# q1, q2, q3, q4 are [B,1] tensors from your critic
+		#make the weights between -1 1 with tanh function
+		weight = np.tanh(weight, out=weight)  # -1: less dense 1: more dense
+   
+		return torch.from_numpy(weight.astype(np.float32)).view(-1, 1).to(self.device, non_blocking=True)
 	
 
 	def train(self, batch_size=256, writer=None):
@@ -186,14 +189,7 @@ class SVR(object):
 		with torch.no_grad():
 			noise = (torch.randn_like(u) * self.sample_std)
 			u = (u + noise).clamp(-self.max_action, self.max_action)
-			beta_prob = torch.exp(-torch.mean((self.behav(state)-action)**2, dim=1)/self.inv_gauss_coef)
-			pi_prob = torch.exp(-torch.mean((pi-action)**2, dim=1)/self.inv_gauss_coef)
-			isratio = torch.clamp(pi_prob / beta_prob, min=0.1)
-			# if self.snis:
-			# 	weight = isratio / isratio.mean() # for snis
-			# else:
-			# 	weight = isratio # for is
-			# weight = self._return_kde_weight(state, u)
+			weight = self._return_kde_weight(state, u)
 
 		# Compute the target Q value
 		Q_clamp_min, Q_clamp_max = -1e3, 1e4  # safe rangetarget_Q = torch.clamp(target_Q, Q_clamp_min, Q_clamp_max)
@@ -229,10 +225,11 @@ class SVR(object):
 		u_Q = torch.cat(u_Q, dim=1)
 		qmin = (torch.ones_like(curr_Q) * self.Q_min).detach()
 		energy = energy_score_mean((current_Q1,current_Q2,current_Q3,current_Q4))
-		# weight = energy_to_weights_pm1(energy)
+		energy_penalty = energy_to_weights_pm1(energy) #high variance high energy
 	
-		weight = torch.exp(energy)
-		reg_diff = torch.clamp((u_Q-qmin)**2 - weight * (curr_Q-qmin)**2, min = -1e4) # 18%  gets clipped from below
+		# weight = torch.exp(energy)
+		reg_diff = energy_penalty * torch.clamp((u_Q-qmin)**2 - weight * (curr_Q-qmin)**2, min = -1e4) # 18%  gets clipped from below
+
 		reg_loss = self.alpha * reg_diff.mean()
 		# reg_loss = reg_diff.mean()
 		if self.total_it % 10000 == 0:

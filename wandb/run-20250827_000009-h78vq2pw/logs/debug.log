@@ -1,0 +1,35 @@
+2025-08-27 00:00:09,426 INFO    MainThread:1337021 [wandb_setup.py:_flush():67] Current SDK version is 0.19.8
+2025-08-27 00:00:09,426 INFO    MainThread:1337021 [wandb_setup.py:_flush():67] Configure stats pid to 1337021
+2025-08-27 00:00:09,426 INFO    MainThread:1337021 [wandb_setup.py:_flush():67] Loading settings from /home/ubuntu/.config/wandb/settings
+2025-08-27 00:00:09,426 INFO    MainThread:1337021 [wandb_setup.py:_flush():67] Loading settings from /home/ubuntu/SVR/wandb/settings
+2025-08-27 00:00:09,426 INFO    MainThread:1337021 [wandb_setup.py:_flush():67] Loading settings from environment variables
+2025-08-27 00:00:09,426 INFO    MainThread:1337021 [wandb_init.py:setup_run_log_directory():647] Logging user logs to /home/ubuntu/SVR/wandb/run-20250827_000009-h78vq2pw/logs/debug.log
+2025-08-27 00:00:09,426 INFO    MainThread:1337021 [wandb_init.py:setup_run_log_directory():648] Logging internal logs to /home/ubuntu/SVR/wandb/run-20250827_000009-h78vq2pw/logs/debug-internal.log
+2025-08-27 00:00:09,426 INFO    MainThread:1337021 [wandb_init.py:init():761] calling init triggers
+2025-08-27 00:00:09,427 INFO    MainThread:1337021 [wandb_init.py:init():766] wandb.init called with sweep_config: {}
+config: {'config': 'configs/train/svr/abiomed.yaml', 'env': 'abiomed', 'seed': 1, 'eval_freq': 10000, 'eval_episodes': 10, 'max_timesteps': 200, 'batch_size': 256, 'discount': 0.99, 'tau': 0.005, 'policy_freq': 2, 'folder': 'train_rl', 'no_normalize': True, 'no_schedule': False, 'snis': False, 'alpha': 0.006, 'sample_std': 0.5, 'devid': 4, 'data_path': '/abiomed/intermediate_data_d4rl/farama_sac_expert/Hopper-v2_expert_1000.pkl', 'noise_rate_action': 0.01, 'noise_rate_transition': 0.01, 'loc': 0.0, 'scale_action': 0.001, 'scale_transition': 0.001, 'action': False, 'transition': False, 'model_name': '10min_1hr_all_data', 'model_path': None, 'data_path_wm': None, 'max_steps': 6, 'gamma1': [0.05, 0.1, 0.2], 'gamma2': [0.2, 0.5, 0.7], 'gamma3': [0.1, 0.5, 1], 'normalize_rewards': False, 'action_space_type': 'continuous', 'fs': False, 'save_path': '/abiomed/models/policy_models/', '_wandb': {}}
+2025-08-27 00:00:09,427 INFO    MainThread:1337021 [wandb_init.py:init():784] starting backend
+2025-08-27 00:00:09,427 INFO    MainThread:1337021 [wandb_init.py:init():788] sending inform_init request
+2025-08-27 00:00:09,479 INFO    MainThread:1337021 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2025-08-27 00:00:09,480 INFO    MainThread:1337021 [wandb_init.py:init():798] backend started and connected
+2025-08-27 00:00:09,483 INFO    MainThread:1337021 [wandb_init.py:init():891] updated telemetry
+2025-08-27 00:00:09,526 INFO    MainThread:1337021 [wandb_init.py:init():915] communicating run to backend with 90.0 second timeout
+2025-08-27 00:00:10,022 INFO    MainThread:1337021 [wandb_init.py:init():990] starting run threads in backend
+2025-08-27 00:00:10,243 INFO    MainThread:1337021 [wandb_run.py:_console_start():2375] atexit reg
+2025-08-27 00:00:10,243 INFO    MainThread:1337021 [wandb_run.py:_redirect():2227] redirect: wrap_raw
+2025-08-27 00:00:10,244 INFO    MainThread:1337021 [wandb_run.py:_redirect():2292] Wrapping output streams.
+2025-08-27 00:00:10,244 INFO    MainThread:1337021 [wandb_run.py:_redirect():2315] Redirects installed.
+2025-08-27 00:00:10,246 INFO    MainThread:1337021 [wandb_init.py:init():1032] run started, returning control to user process
+2025-08-27 00:00:10,250 INFO    MainThread:1337021 [wandb_init.py:setup_run_log_directory():647] Logging user logs to /home/ubuntu/SVR/wandb/run-20250827_000010-nbpshu69/logs/debug.log
+2025-08-27 00:00:10,250 INFO    MainThread:1337021 [wandb_init.py:setup_run_log_directory():648] Logging internal logs to /home/ubuntu/SVR/wandb/run-20250827_000010-nbpshu69/logs/debug-internal.log
+2025-08-27 00:00:10,250 INFO    MainThread:1337021 [wandb_init.py:init():761] calling init triggers
+2025-08-27 00:00:10,250 INFO    MainThread:1337021 [wandb_init.py:init():766] wandb.init called with sweep_config: {}
+config: {'gamma1': 0.05, 'gamma2': 0.2, 'gamma3': 0.1, 'trial_id': 0, 'seed': 1, 'env': 'abiomed', '_wandb': {}}
+2025-08-27 00:00:10,250 INFO    MainThread:1337021 [wandb_init.py:init():773] finishing previous run: h78vq2pw
+2025-08-27 00:00:10,250 INFO    MainThread:1337021 [wandb_run.py:_finish():2112] finishing run aysintumay-uc-san-diego/SVR_hpo/h78vq2pw
+2025-08-27 00:00:10,251 INFO    MainThread:1337021 [wandb_run.py:_atexit_cleanup():2340] got exitcode: 0
+2025-08-27 00:00:10,251 INFO    MainThread:1337021 [wandb_run.py:_restore():2322] restore
+2025-08-27 00:00:10,251 INFO    MainThread:1337021 [wandb_run.py:_restore():2328] restore done
+2025-08-27 00:00:11,179 INFO    MainThread:1337021 [wandb_run.py:_footer_history_summary_info():3956] rendering history
+2025-08-27 00:00:11,180 INFO    MainThread:1337021 [wandb_run.py:_footer_history_summary_info():3988] rendering summary
+2025-08-27 00:00:11,180 INFO    MainThread:1337021 [wandb_run.py:_footer_sync_info():3917] logging synced files

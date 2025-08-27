@@ -110,24 +110,21 @@ class ReplayBufferAbiomed(object):
 		)
 
 
-	def  convert_abiomed(self, dataset, env, fs=None):
+	def  convert_abiomed(self, dataset, env, shuffle=None):
 
-		if isinstance(dataset, tuple):
+		if isinstance(dataset, list):
 			
 			all_x = torch.cat([dataset[0].data, dataset[1].data, dataset[2].data], axis=0)
 			all_pl = torch.cat([dataset[0].pl, dataset[1].pl, dataset[2].pl], axis=0)
 			all_labels = torch.cat([dataset[0].labels, dataset[1].labels, dataset[2].labels], axis=0)
+			# all_x = torch.cat([dataset[0].data, dataset[1].data], axis=0)
+			# all_pl = torch.cat([dataset[0].pl, dataset[1].pl], axis=0)
+			# all_labels = torch.cat([dataset[0].labels, dataset[1].labels], axis=0)
 			print(all_x.shape, all_pl.shape, all_labels.shape)
 		else:
 			all_x = dataset.data
 			all_pl = dataset.pl
 			all_labels = dataset.labels
-		if fs:
-			#select columns of 0 (MAP), 7 (PULSAT), 9 (HR) in all_x and all_labels
-			all_x = all_x[:, :, [0, 7, 9, 11]]
-			all_labels = all_labels.reshape(-1, self.timesteps, self.feature_dim-1)[:, :, [0, 7, 9]]
-			print("FEATURE SELECTION APPLIED FOR 0, 7, 9")
-			self.feature_dim = all_x.shape[2] # 0 (MAP), 7 (PULSAT), 9 (HR) + 1 (P-level)
 
 		reward_l = []
 		done_l = []
@@ -138,22 +135,39 @@ class ReplayBufferAbiomed(object):
 		action = all_pl
 		#take one number with majority voting among 6 numbers
 		action_unnorm = np.array(env.world_model.unnorm_pl(action))
-		action = np.array([np.bincount(a.astype(int)).argmax() for a in action_unnorm]).reshape(-1,1)
+		action_1 = np.array([np.bincount(a.astype(int)).argmax() for a in action_unnorm]).reshape(-1,1)
 		#normalize back
-		action = env.world_model.normalize_pl(torch.Tensor(action))
-		
+		action = env.world_model.normalize_pl(torch.Tensor(action_1))
+
+		first_action_unnorm = np.array(env.world_model.unnorm_pl(all_x[0,-1,-1]))
+		# first_action = np.array([np.bincount(a.astype(int)).argmax() for a in first_action_unnorm]).reshape(-1,1)
+
+		action2 = [first_action_unnorm, action_1[0]]
 		for i in tqdm.tqdm(range(action.shape[0])):
-			reward = env._compute_reward(next_observation[i].reshape(-1,self.timesteps, self.feature_dim))
+
+			if (env.gamma1 != 0.0) or (env.gamma2 != 0.0) or (env.gamma3 != 0.0):
+				reward = env._compute_reward(next_observation[i].reshape(-1,self.timesteps, self.feature_dim), observation[i].reshape(1,self.timesteps, self.feature_dim), action2)
+				action2 = [action2[1], action_1[i+1]] if (i+1)< action.shape[0] else None
+				
+			else:	
+				reward = env._compute_reward(next_observation[i].reshape(-1,self.timesteps, self.feature_dim))
+
 			reward_l.append(reward)
 			done_l.append(np.array([0]))
-		print(type(observation))
-		print(type(action))
+		
 		self.state = np.array(observation)
 		self.action =  np.array(action)
 		self.next_state =  np.array(next_observation)
 		self.reward =  np.array(reward_l).reshape(-1,1)
 		self.not_done = 1. -  np.array(done_l).reshape(-1,1)
 		self.size = self.state.shape[0]
+
+		print(self.state.min(), self.state.max())
+		print(self.action.min(), self.action.max())
+		print(self.next_state.min(), self.next_state.max())
+		print(self.reward.min(), self.reward.max())
+		print(self.not_done.min(), self.not_done.max())
+
 
 
 
@@ -194,6 +208,9 @@ def get_env_data(args, val=None):
 									model_path=args.model_path,
 									data_path=args.data_path_wm,
 									max_steps=args.max_steps,
+									gamma1=args.gamma1,
+									gamma2=args.gamma2,
+									gamma3=args.gamma3,
 									action_space_type=args.action_space_type,
 									reward_type="smooth",
 									normalize_rewards=True,
@@ -203,8 +220,7 @@ def get_env_data(args, val=None):
 		dataset1 = env.world_model.data_train
 		dataset2 = env.world_model.data_val
 		dataset3 = env.world_model.data_test
-		dataset = (dataset1, dataset2, dataset3)
-		dataset = dataset1
+		dataset = [dataset1, dataset2, dataset3]
 
 		if val:
 			print("Validation data is supported for Abiomed dataset")
@@ -224,7 +240,7 @@ def get_env_data(args, val=None):
 		return env, (dataset, dataset_val)
 
 
-def plot_policy(eval_env, state, all_states, writer):
+def plot_policy(eval_env, state, all_states, title, writer, legend=None):
 	"""
 	
 	Plot the policy for the given state and environment.
@@ -236,10 +252,9 @@ def plot_policy(eval_env, state, all_states, writer):
 	"""
 
 	input_color = 'tab:blue'
-	pred_color = 'tab:pink' #label="input",
+	pred_color = 'tab:red' #label="input",
 	gt_color = 'tab:red'
-	rl_color = 'darkblue'
-
+	rl_color = 'tab:blue'
 	
 	max_steps = eval_env.max_steps
 	forecast_n = eval_env.world_model.forecast_horizon
@@ -250,7 +265,7 @@ def plot_policy(eval_env, state, all_states, writer):
 	all_state_unnorm = eval_env.world_model.unnorm_output(np.array(all_states).reshape(max_steps+1, forecast_n, -1))
 	first_action_unnorm = state_unnorm[0,:,-1] #normalized
 
-	fig, ax1 = plt.subplots(figsize = (8,5.8), dpi=300)
+	fig, ax1 = plt.subplots(figsize=(6, 4), dpi=300)  # Smaller plot size
 									
 	default_x_ticks = range(0, 181, 18)
 	x_ticks = np.array(list(range(0, 31, 3)))
@@ -260,24 +275,33 @@ def plot_policy(eval_env, state, all_states, writer):
 	ax1.axvline(x=x1, linestyle='--', c='black', alpha =0.7)
 	
 
-	line_obs, = ax1.plot(range(0, x1+x2), all_state_unnorm[:, :, 0].reshape(-1,1), label ='Observed MAP', color=gt_color)
-	line_pred1, = ax1.plot(range(x1, x1+x2), state_unnorm[:, :, 0].reshape(-1,1), '--', label ='Predicted MAP', color=pred_color)
+	line_obs, = ax1.plot(range(0, x1+x2), all_state_unnorm[:, :, 0].reshape(-1,1), '--', label ='Observed MAP', alpha=0.5, color=gt_color, linewidth=2.0)
+	line_pred1, = ax1.plot(range(x1, x1+x2), state_unnorm[:, :, 0].reshape(-1,1),  label ='Predicted MAP', color=pred_color, linewidth=2.0)
 	ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-	line_pl1, = ax2.plot(range(0, x1+x2),  all_state_unnorm[:,:,-1].reshape(-1),  label ='Input PL', color=input_color)
-	line_pl2, = ax2.plot(range(x1, x1+x2), action_unnorm.reshape(-1,1),'--',label ='Recommended PL', color=rl_color)
+	line_pl1, = ax2.plot(range(0, x1+x2),  all_state_unnorm[:,:,-1].reshape(-1), '--', label ='Input PL',  alpha=0.5, color=input_color, linewidth=2.0)
+	line_pl2, = ax2.plot(range(x1, x1+x2), action_unnorm.reshape(-1,1),label ='Recommended PL', color=rl_color, linewidth=2.0)
 
 	
 
 	# Combined legend for all lines
 	lines = [line_obs, line_pred1, line_pl1, line_pl2]
 	labels = ['Observed MAP', 'Predicted MAP', 'Input PL', 'Recommended PL']
-	ax1.legend(lines, labels, loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=2, fontsize='small')
-
-	ax1.set_ylabel('MAP (mmHg)',  )
-	ax2.set_ylabel('P-level',  )
-	ax1.set_xlabel('Time (hour)',)
-	ax1.set_title(f"MAP Prediction and P-level")
+	if legend:
+		ax1.legend(lines, labels, loc='upper left', bbox_to_anchor=(0, 1), fancybox=True, ncol=2, columnspacing= 0.1, fontsize='medium', frameon=False)
+	
+	# ax1.set_ylabel('MAP (mmHg)', size="x-large", color='tab:red')
+	ax1.tick_params(axis='y', colors='tab:red')
+	ax1.set_xlabel('Time (hour)', size="x-large")
+	ax1.set_title(f"{title}", size="x-large", fontweight="bold")
+	ax2.set_ylabel('', size="x-large", color='tab:blue')
+	ax2.set_ylabel('P-level', size="x-large", color='tab:blue', labelpad=10)
+	ax2.tick_params(axis='y', colors='tab:blue')
 	ax2.set_ylim(2, 10)
+	ax1.spines['top'].set_visible(False)
+	ax1.spines['right'].set_visible(False)
+	ax1.spines['bottom'].set_visible(False)
+	ax1.spines['left'].set_visible(False)
+
 	# wandb.log({f"plot_batch_{iter}": wandb.Image(fig)})
 
 	canvas = FigureCanvas(fig)
@@ -293,3 +317,5 @@ def plot_policy(eval_env, state, all_states, writer):
 	plt.close(fig)
 
 	plt.show()
+
+	return fig

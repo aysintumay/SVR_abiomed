@@ -1,0 +1,16 @@
+{"time":"2025-08-27T00:58:31.494759762Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_005828-ozxxyf19/logs/debug-core.log"}
+{"time":"2025-08-27T00:58:31.709205226Z","level":"INFO","msg":"created new stream","id":"ozxxyf19"}
+{"time":"2025-08-27T00:58:31.709262237Z","level":"INFO","msg":"stream: started","id":"ozxxyf19"}
+{"time":"2025-08-27T00:58:31.709330738Z","level":"INFO","msg":"writer: Do: started","stream_id":"ozxxyf19"}
+{"time":"2025-08-27T00:58:31.709390258Z","level":"INFO","msg":"sender: started","stream_id":"ozxxyf19"}
+{"time":"2025-08-27T00:58:31.709419379Z","level":"INFO","msg":"handler: started","stream_id":"ozxxyf19"}
+{"time":"2025-08-27T00:58:32.468407643Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T00:58:58.607553796Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T00:58:58.609010933Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T00:58:59.567450798Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"updating run config","runtime_seconds":0.957346852}],"total_operations":1}}
+{"time":"2025-08-27T00:59:01.70407114Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T00:59:03.106903468Z","level":"INFO","msg":"stream: closing","id":"ozxxyf19"}
+{"time":"2025-08-27T00:59:03.106954149Z","level":"INFO","msg":"handler: closed","stream_id":"ozxxyf19"}
+{"time":"2025-08-27T00:59:03.10706933Z","level":"INFO","msg":"sender: closed","stream_id":"ozxxyf19"}
+{"time":"2025-08-27T00:59:03.106985999Z","level":"INFO","msg":"writer: Close: closed","stream_id":"ozxxyf19"}
+{"time":"2025-08-27T00:59:03.107246192Z","level":"INFO","msg":"stream: closed","id":"ozxxyf19"}

@@ -4,6 +4,7 @@ import gym
 import argparse
 import os
 # import d4rl
+import yaml
 from pathlib import Path
 import random
 import json
@@ -18,83 +19,27 @@ import faiss
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils import get_env_data
+from SVR_kde.kde_nn import PercentileThresholdKDE
 import SVR_q as SVR 
-
+from evaluate import eval_policy
 import utils
 
 from noisy_mujoco.abiomed_env.rl_env import AbiomedRLEnvFactory
 
-    
-def eval_policy(policy, env_name, seed, mean, std, writer=None, seed_offset=100, eval_episodes=10, plot=None):
-	if env_name == 'abiomed':
-		eval_env = AbiomedRLEnvFactory.create_env(
-									model_name=args.model_name,
-									model_path=args.model_path,
-									data_path=args.data_path_wm,
-									max_steps=args.max_steps,
-									action_space_type="continuous",
-									reward_type="smooth",
-									normalize_rewards=True,
-									seed=42,
-									device = policy.device if torch.cuda.is_available() else "cpu",
-									)
-		eval_env.seed(seed + seed_offset)
-		eval_env.action_space.seed(seed + seed_offset)
-		avg_reward = 0.
-		
-		for k in range(eval_episodes):
-			state_ = []
-			next_state_ = []
-
-			(state, _), done = eval_env.reset(), False #state is normalized
-			truncated = False
-			
-			while not (done or truncated):
-				state = (np.array(state).reshape(1,-1) - mean)/std #if no_normalize mean=0 std =1
-				action = policy.select_action(state) #action is in [2,10], state is already normalized
-				next_state, reward, done, truncated, _ = eval_env.step(action)
-				avg_reward += reward
-
-				state_.append(state)
-				next_state_.append(next_state)
-				state = next_state
-
-			if (k == 1) & plot:
-				#unnormalize
-				max_steps = eval_env.max_steps
-				forecast_n = eval_env.world_model.forecast_horizon
-				action_unnorm  = np.repeat(eval_env.episode_actions,forecast_n)
-				state_unnorm = eval_env.world_model.unnorm_output(np.array(state_).reshape(max_steps, forecast_n, -1))
-				next_state_unnorm = eval_env.world_model.unnorm_output(np.array(next_state_).reshape(max_steps, forecast_n, -1))
-				utils.plot_policy(action_unnorm, state_unnorm, next_state_unnorm, writer)
-	else:
-		eval_env = gym.make(env_name)
-
-		# eval_env.seed(seed + seed_offset)
-		eval_env.action_space.seed(seed + seed_offset)
-		eval_env.observation_space.seed(seed + seed_offset)
-		avg_reward = 0.
-		for _ in range(eval_episodes):
-			(state, _), done = eval_env.reset(), False
-			truncated = False
-			while not (done or truncated):
-				state = (np.array(state).reshape(1,-1) - mean)/std
-				action = policy.select_action(state)
-				state, reward, done, truncated, _ = eval_env.step(action)
-				avg_reward += reward
-
-	avg_reward /= eval_episodes
-	# d4rl_score = eval_env.get_normalized_score(avg_reward) * 100
-
-	print("---------------------------------------")
-	print(f"Evaluation over {eval_episodes} episodes: {avg_reward:.3f}, D4RL score: {avg_reward:.3f}")
-	print("---------------------------------------")
-	return avg_reward
-
+  
 
 if __name__ == "__main__":
 	
+	print("Running", __file__)
 	parser = argparse.ArgumentParser()
+	parser.add_argument('--config', type=str, default="configs/train/svr_kde/abiomed.yaml")
+	args, remaining_argv = parser.parse_known_args()
+
+	if args.config:
+		with open(args.config, 'r') as f:
+			config = yaml.safe_load(f)
+	else:
+		config = {}
 	#=========== SVR arguments ============
 	parser.add_argument("--env", default="abiomed")        # OpenAI gym environment name
 	parser.add_argument("--seed", default=1, type=int)              # Sets Gym, PyTorch and Numpy seeds
@@ -124,7 +69,7 @@ if __name__ == "__main__":
 	parser.add_argument("--transition", action='store_true', help="Create dataset with noisy transitions")
 
 	#============ abiomed environment arguments ============
-	parser.add_argument("--model_name", type=str, default="10min_1hr_window")
+	parser.add_argument("--model_name", type=str, default="10min_1hr_all_data")
 	parser.add_argument("--model_path", type=str, default=None)
 	parser.add_argument("--data_path_wm", type=str, default=None)
 	parser.add_argument("--max_steps", type=int, default=6)
@@ -133,8 +78,10 @@ if __name__ == "__main__":
 
 	# parser.add_argument('--classifier_path', type=str, default='/abiomed/models/', help='Path to save model and results')
 	parser.add_argument('--save_path', type=str, default='/abiomed/models/policy_models/', help='Path to save model and results')
+	parser.add_argument("--classifier_model_name", type=str, default="trained_kde")
 
-	args = parser.parse_args()
+	parser.set_defaults(**config)
+	args = parser.parse_args(remaining_argv)
 
 	device = torch.device(f"cuda:{args.devid}" if torch.cuda.is_available() else "cpu")
 	print(device)
@@ -202,6 +149,7 @@ if __name__ == "__main__":
 	working_dir = Path.cwd()
 	
 	
+	classifier_dict = PercentileThresholdKDE.load_model(f"/abiomed/models/kde/{args.classifier_model_name}", use_gpu=True, devid = args.devid)
 
 	kwargs = {
 		"state_dim": state_dim,
@@ -215,6 +163,7 @@ if __name__ == "__main__":
 		"Q_min": Q_min,
 		"snis": args.snis,
 		"behav": behav,
+		"classifier":classifier_dict,
 		"alpha": args.alpha,
 		"sample_std": args.sample_std,
 		"device": device,
