@@ -1,8 +1,0 @@
-wandb_version: 1
-
-gamma1:
-  value: 0.05
-gamma2:
-  value: 0.2
-gamma3:
-  value: 1

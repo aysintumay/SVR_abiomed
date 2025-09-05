@@ -1,7 +1,0 @@
-{"time":"2025-08-27T00:50:56.619125961Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_005056-b2q1dijk/logs/debug-core.log"}
-{"time":"2025-08-27T00:50:56.835571254Z","level":"INFO","msg":"created new stream","id":"b2q1dijk"}
-{"time":"2025-08-27T00:50:56.835642265Z","level":"INFO","msg":"stream: started","id":"b2q1dijk"}
-{"time":"2025-08-27T00:50:56.835681915Z","level":"INFO","msg":"writer: Do: started","stream_id":"b2q1dijk"}
-{"time":"2025-08-27T00:50:56.835783757Z","level":"INFO","msg":"sender: started","stream_id":"b2q1dijk"}
-{"time":"2025-08-27T00:50:56.835856467Z","level":"INFO","msg":"handler: started","stream_id":"b2q1dijk"}
-{"time":"2025-08-27T00:50:58.430713218Z","level":"INFO","msg":"Starting system monitor"}

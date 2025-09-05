@@ -1,6 +1,0 @@
-{"time":"2025-08-27T00:53:06.566907934Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_005306-uhlbfg9g/logs/debug-core.log"}
-{"time":"2025-08-27T00:53:06.78017832Z","level":"INFO","msg":"created new stream","id":"uhlbfg9g"}
-{"time":"2025-08-27T00:53:06.78023207Z","level":"INFO","msg":"stream: started","id":"uhlbfg9g"}
-{"time":"2025-08-27T00:53:06.780255451Z","level":"INFO","msg":"writer: Do: started","stream_id":"uhlbfg9g"}
-{"time":"2025-08-27T00:53:06.780352292Z","level":"INFO","msg":"handler: started","stream_id":"uhlbfg9g"}
-{"time":"2025-08-27T00:53:06.780334252Z","level":"INFO","msg":"sender: started","stream_id":"uhlbfg9g"}
