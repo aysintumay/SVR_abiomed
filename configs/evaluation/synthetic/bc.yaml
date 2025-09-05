@@ -1,0 +1,7 @@
+env: abiomed
+model_name_rl: bc
+seed: 1
+eval_episodes: 100
+no_normalize: True
+noise_rate: 0.8
+noise_scale: 0.2

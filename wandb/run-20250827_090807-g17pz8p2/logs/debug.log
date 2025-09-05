@@ -1,0 +1,38 @@
+2025-08-27 09:08:07,496 INFO    MainThread:1371677 [wandb_init.py:setup_run_log_directory():647] Logging user logs to /home/ubuntu/SVR/wandb/run-20250827_090807-g17pz8p2/logs/debug.log
+2025-08-27 09:08:07,497 INFO    MainThread:1371677 [wandb_init.py:setup_run_log_directory():648] Logging internal logs to /home/ubuntu/SVR/wandb/run-20250827_090807-g17pz8p2/logs/debug-internal.log
+2025-08-27 09:08:07,497 INFO    MainThread:1371677 [wandb_init.py:init():761] calling init triggers
+2025-08-27 09:08:07,497 INFO    MainThread:1371677 [wandb_init.py:init():766] wandb.init called with sweep_config: {}
+config: {'gamma1': [0.05, 0.1, 0.2], 'gamma2': [0.2, 0.5, 0.7], 'gamma3': [0.1, 0.5, 1], 'trial_id': 8, 'seed': 1, 'env': 'abiomed', '_wandb': {}}
+2025-08-27 09:08:07,497 INFO    MainThread:1371677 [wandb_init.py:init():773] finishing previous run: cdmsm098
+2025-08-27 09:08:07,497 INFO    MainThread:1371677 [wandb_run.py:_finish():2112] finishing run aysintumay-uc-san-diego/SVR_hpo/cdmsm098
+2025-08-27 09:08:07,498 INFO    MainThread:1371677 [wandb_run.py:_atexit_cleanup():2340] got exitcode: 0
+2025-08-27 09:08:07,498 INFO    MainThread:1371677 [wandb_run.py:_restore():2322] restore
+2025-08-27 09:08:07,499 INFO    MainThread:1371677 [wandb_run.py:_restore():2328] restore done
+2025-08-27 09:08:08,275 INFO    MainThread:1371677 [wandb_run.py:_footer_history_summary_info():3956] rendering history
+2025-08-27 09:08:08,276 INFO    MainThread:1371677 [wandb_run.py:_footer_history_summary_info():3988] rendering summary
+2025-08-27 09:08:08,276 INFO    MainThread:1371677 [wandb_run.py:_footer_sync_info():3917] logging synced files
+2025-08-27 09:08:08,278 INFO    MainThread:1371677 [wandb_init.py:init():784] starting backend
+2025-08-27 09:08:08,278 INFO    MainThread:1371677 [wandb_init.py:init():788] sending inform_init request
+2025-08-27 09:08:08,280 INFO    MainThread:1371677 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2025-08-27 09:08:08,280 INFO    MainThread:1371677 [wandb_init.py:init():798] backend started and connected
+2025-08-27 09:08:08,285 INFO    MainThread:1371677 [wandb_init.py:init():891] updated telemetry
+2025-08-27 09:08:08,415 INFO    MainThread:1371677 [wandb_init.py:init():915] communicating run to backend with 90.0 second timeout
+2025-08-27 09:08:08,743 INFO    MainThread:1371677 [wandb_init.py:init():990] starting run threads in backend
+2025-08-27 09:08:08,977 INFO    MainThread:1371677 [wandb_run.py:_console_start():2375] atexit reg
+2025-08-27 09:08:08,978 INFO    MainThread:1371677 [wandb_run.py:_redirect():2227] redirect: wrap_raw
+2025-08-27 09:08:08,978 INFO    MainThread:1371677 [wandb_run.py:_redirect():2292] Wrapping output streams.
+2025-08-27 09:08:08,978 INFO    MainThread:1371677 [wandb_run.py:_redirect():2315] Redirects installed.
+2025-08-27 09:08:08,979 INFO    MainThread:1371677 [wandb_init.py:init():1032] run started, returning control to user process
+2025-08-27 09:52:07,040 INFO    MainThread:1371677 [wandb_init.py:setup_run_log_directory():647] Logging user logs to /home/ubuntu/SVR/wandb/run-20250827_095207-2w79umrt/logs/debug.log
+2025-08-27 09:52:07,041 INFO    MainThread:1371677 [wandb_init.py:setup_run_log_directory():648] Logging internal logs to /home/ubuntu/SVR/wandb/run-20250827_095207-2w79umrt/logs/debug-internal.log
+2025-08-27 09:52:07,041 INFO    MainThread:1371677 [wandb_init.py:init():761] calling init triggers
+2025-08-27 09:52:07,041 INFO    MainThread:1371677 [wandb_init.py:init():766] wandb.init called with sweep_config: {}
+config: {'gamma1': [0.05, 0.1, 0.2], 'gamma2': [0.2, 0.5, 0.7], 'gamma3': [0.1, 0.5, 1], 'trial_id': 9, 'seed': 1, 'env': 'abiomed', '_wandb': {}}
+2025-08-27 09:52:07,042 INFO    MainThread:1371677 [wandb_init.py:init():773] finishing previous run: g17pz8p2
+2025-08-27 09:52:07,042 INFO    MainThread:1371677 [wandb_run.py:_finish():2112] finishing run aysintumay-uc-san-diego/SVR_hpo/g17pz8p2
+2025-08-27 09:52:07,042 INFO    MainThread:1371677 [wandb_run.py:_atexit_cleanup():2340] got exitcode: 0
+2025-08-27 09:52:07,042 INFO    MainThread:1371677 [wandb_run.py:_restore():2322] restore
+2025-08-27 09:52:07,043 INFO    MainThread:1371677 [wandb_run.py:_restore():2328] restore done
+2025-08-27 09:52:07,952 INFO    MainThread:1371677 [wandb_run.py:_footer_history_summary_info():3956] rendering history
+2025-08-27 09:52:07,952 INFO    MainThread:1371677 [wandb_run.py:_footer_history_summary_info():3988] rendering summary
+2025-08-27 09:52:07,954 INFO    MainThread:1371677 [wandb_run.py:_footer_sync_info():3917] logging synced files

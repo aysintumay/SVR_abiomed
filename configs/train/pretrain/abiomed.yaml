@@ -3,3 +3,8 @@ no_normalize: True
 eval_data: 0.1
 seed: 1
 num_iters: 9000
+gamma1: 0.0
+gamma2: 0.0
+gamma3: 0.0
+noise_rate: 0.0
+noise_scale: 0.0

@@ -1,0 +1,18 @@
+{"time":"2025-08-27T18:53:08.762632513Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_185307-4cdgwzd3/logs/debug-core.log"}
+{"time":"2025-08-27T18:53:08.97772573Z","level":"INFO","msg":"created new stream","id":"4cdgwzd3"}
+{"time":"2025-08-27T18:53:08.977791011Z","level":"INFO","msg":"stream: started","id":"4cdgwzd3"}
+{"time":"2025-08-27T18:53:08.977831792Z","level":"INFO","msg":"writer: Do: started","stream_id":"4cdgwzd3"}
+{"time":"2025-08-27T18:53:08.977838452Z","level":"INFO","msg":"handler: started","stream_id":"4cdgwzd3"}
+{"time":"2025-08-27T18:53:08.977896563Z","level":"INFO","msg":"sender: started","stream_id":"4cdgwzd3"}
+{"time":"2025-08-27T18:53:09.162059506Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T19:07:54.569641132Z","level":"INFO","msg":"api: retrying HTTP error","status":502,"url":"https://api.wandb.ai/graphql","body":"\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>502 Server Error</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Server Error</h1>\n<h2>The server encountered a temporary error and could not complete your request.<p>Please try again in 30 seconds.</h2>\n<h2></h2>\n</body></html>\n"}
+{"time":"2025-08-27T19:09:55.394415163Z","level":"INFO","msg":"api: retrying HTTP error","status":502,"url":"https://api.wandb.ai/graphql","body":"\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>502 Server Error</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Server Error</h1>\n<h2>The server encountered a temporary error and could not complete your request.<p>Please try again in 30 seconds.</h2>\n<h2></h2>\n</body></html>\n"}
+{"time":"2025-08-27T19:38:22.488601739Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T19:38:22.490822787Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T19:38:23.075384126Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T19:38:23.195269738Z","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-08-27T19:38:23.199465609Z","level":"INFO","msg":"stream: closing","id":"4cdgwzd3"}
+{"time":"2025-08-27T19:38:23.19949425Z","level":"INFO","msg":"handler: closed","stream_id":"4cdgwzd3"}
+{"time":"2025-08-27T19:38:23.19952145Z","level":"INFO","msg":"writer: Close: closed","stream_id":"4cdgwzd3"}
+{"time":"2025-08-27T19:38:23.199700342Z","level":"INFO","msg":"sender: closed","stream_id":"4cdgwzd3"}
+{"time":"2025-08-27T19:38:23.199812484Z","level":"INFO","msg":"stream: closed","id":"4cdgwzd3"}

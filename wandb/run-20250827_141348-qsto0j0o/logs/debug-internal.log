@@ -1,0 +1,19 @@
+{"time":"2025-08-27T14:13:49.583152093Z","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/home/ubuntu/SVR/wandb/run-20250827_141348-qsto0j0o/logs/debug-core.log"}
+{"time":"2025-08-27T14:13:49.802344189Z","level":"INFO","msg":"created new stream","id":"qsto0j0o"}
+{"time":"2025-08-27T14:13:49.802397789Z","level":"INFO","msg":"stream: started","id":"qsto0j0o"}
+{"time":"2025-08-27T14:13:49.802411839Z","level":"INFO","msg":"writer: Do: started","stream_id":"qsto0j0o"}
+{"time":"2025-08-27T14:13:49.802625881Z","level":"INFO","msg":"handler: started","stream_id":"qsto0j0o"}
+{"time":"2025-08-27T14:13:49.802629621Z","level":"INFO","msg":"sender: started","stream_id":"qsto0j0o"}
+{"time":"2025-08-27T14:13:50.038642412Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T14:48:37.807104354Z","level":"INFO","msg":"api: retrying HTTP error","status":502,"url":"https://api.wandb.ai/files/aysintumay-uc-san-diego/SVR_hpo/qsto0j0o/file_stream","body":"\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>502 Server Error</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Server Error</h1>\n<h2>The server encountered a temporary error and could not complete your request.<p>Please try again in 30 seconds.</h2>\n<h2></h2>\n</body></html>\n"}
+{"time":"2025-08-27T14:55:35.293216904Z","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)"}
+{"time":"2025-08-27T14:57:21.081357427Z","level":"INFO","msg":"api: retrying HTTP error","status":502,"url":"https://api.wandb.ai/graphql","body":"\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>502 Server Error</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Server Error</h1>\n<h2>The server encountered a temporary error and could not complete your request.<p>Please try again in 30 seconds.</h2>\n<h2></h2>\n</body></html>\n"}
+{"time":"2025-08-27T15:01:02.120900435Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T15:01:02.124917866Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T15:01:02.884796247Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T15:01:03.104869043Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading history steps 0-0, summary, console lines 260-260","runtime_seconds":0.219662921}],"total_operations":1}}
+{"time":"2025-08-27T15:01:03.253630409Z","level":"INFO","msg":"stream: closing","id":"qsto0j0o"}
+{"time":"2025-08-27T15:01:03.25368557Z","level":"INFO","msg":"handler: closed","stream_id":"qsto0j0o"}
+{"time":"2025-08-27T15:01:03.253743511Z","level":"INFO","msg":"writer: Close: closed","stream_id":"qsto0j0o"}
+{"time":"2025-08-27T15:01:03.254016354Z","level":"INFO","msg":"sender: closed","stream_id":"qsto0j0o"}
+{"time":"2025-08-27T15:01:03.254041354Z","level":"INFO","msg":"stream: closed","id":"qsto0j0o"}

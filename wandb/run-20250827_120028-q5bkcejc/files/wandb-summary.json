@@ -1,0 +1,1 @@
+{"avg_reward":1.0821797157418491,"_runtime":2692.801564506,"_wandb":{"runtime":2692},"avg_ws":0.22916666666666663,"best_custom_score":0.44268216759359125,"_step":0,"_timestamp":1.7562987217648797e+09,"avg_acp":1.54,"best_params":{"gamma1":0.05,"gamma2":0.5,"gamma3":0.5},"avg_air":0.5795,"custom_score":0.20130391472255466}

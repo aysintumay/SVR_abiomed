@@ -5,3 +5,12 @@
 {"time":"2025-08-27T06:02:37.516046547Z","level":"INFO","msg":"handler: started","stream_id":"cyttosnx"}
 {"time":"2025-08-27T06:02:37.516085837Z","level":"INFO","msg":"sender: started","stream_id":"cyttosnx"}
 {"time":"2025-08-27T06:02:37.692520461Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-08-27T06:51:55.908040083Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-08-27T06:51:55.90914268Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-08-27T06:51:56.483385301Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-08-27T06:51:56.652834707Z","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-08-27T06:51:56.656661956Z","level":"INFO","msg":"stream: closing","id":"cyttosnx"}
+{"time":"2025-08-27T06:51:56.656785148Z","level":"INFO","msg":"handler: closed","stream_id":"cyttosnx"}
+{"time":"2025-08-27T06:51:56.656852869Z","level":"INFO","msg":"writer: Close: closed","stream_id":"cyttosnx"}
+{"time":"2025-08-27T06:51:56.657023672Z","level":"INFO","msg":"sender: closed","stream_id":"cyttosnx"}
+{"time":"2025-08-27T06:51:56.657251375Z","level":"INFO","msg":"stream: closed","id":"cyttosnx"}

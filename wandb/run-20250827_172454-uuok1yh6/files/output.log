@@ -1,0 +1,261 @@
+Starting trial 19 with gamma1=0.2, gamma2=0.2, gamma3=0.5
+cuda:6
+In env continuous
+<module 'config' from '/home/ubuntu/noisy_mujoco/abiomed_env/config.py'>
+time series transformer device cuda:6
+Using device: cuda:6
+/home/ubuntu/miniconda3/envs/mopo/lib/python3.8/site-packages/torch/nn/modules/transformer.py:307: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.self_attn.batch_first was not True(use batch_first for better inference performance)
+  warnings.warn(f"enable_nested_tensor is True, but self.use_nested_tensor is False because {why_not_sparsity_fast_path}")
+/home/ubuntu/noisy_mujoco/abiomed_env/model.py:402: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(path, map_location=self.device)
+Model loaded from /abiomed/downsampled/models/10min_1hr_all_data_model.pth
+loaded datasets with length
+ train:  12051
+ val:  1938
+ test:  3876
+Data loaded from /abiomed/downsampled/10min_1hr_all_data.pkl
+Continuous action space. Min action: -2.2312597235306466, Max action: 1.8085589693336617
+No validation data for Abiomed dataset
+0.2 0.2 0.5
+torch.Size([17865, 6, 12]) torch.Size([17865, 6]) torch.Size([17865, 66])
+100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 17865/17865 [00:08<00:00, 2222.76it/s]
+-4.428163142542622 165.93485669748776
+-2.736237 1.3035817
+-5.897560220908415 83.67061508289387
+-3.4000000000000004 1.5392697494459262
+1.0 1.0
+/home/ubuntu/SVR/SVR_old/main.py:94: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  behav.load_state_dict(torch.load(bc_model_path))
+<module 'config' from '/home/ubuntu/noisy_mujoco/abiomed_env/config.py'>
+time series transformer device cuda:6
+Using device: cuda:6
+Model loaded from /abiomed/downsampled/models/10min_1hr_all_data_model.pth
+loaded datasets with length
+ train:  12051
+ val:  1938
+ test:  3876
+Data loaded from /abiomed/downsampled/10min_1hr_all_data.pkl
+Continuous action space. Min action: -2.2312597235306466, Max action: 1.8085589693336617
+EVAL ENVIRONMENT GAMMAS SET TO 0
+ 15%|███████████████████▎                                                                                                             | 29999/200000 [06:08<31:19, 90.44it/s]
+-3.866281270980835
+Time steps: 10000
+---------------------------------------
+Evaluation over 10 episodes: Return 3.152
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.80000
+Unstable hours (%): 0.0
+Weaning score: 0.3466666666666667
+Super metric: 0.20000
+---------------------------------------
+-9.918180465698242
+Time steps: 20000
+---------------------------------------
+Evaluation over 10 episodes: Return 2.702
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.90000
+Unstable hours (%): 1.6666666666666665
+Weaning score: 0.21999999999999997
+Super metric: 0.30000
+---------------------------------------
+-20.43565559387207
+Time steps: 30000
+---------------------------------------
+Evaluation over 10 episodes: Return -0.416
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.50000
+Unstable hours (%): 8.333333333333332
+Weaning score: 0.14666666666666667
+Super metric: 0.10000
+---------------------------------------
+-46.300506591796875
+Time steps: 40000
+---------------------------------------
+Evaluation over 10 episodes: Return 1.260
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.80000
+Unstable hours (%): 3.333333333333333
+Weaning score: 0.06000000000000001
+Super metric: 0.00000
+---------------------------------------
+-75.81399536132812
+Time steps: 50000
+---------------------------------------
+Evaluation over 10 episodes: Return 1.166
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.60000
+Unstable hours (%): 3.333333333333333
+Weaning score: 0.04
+Super metric: 0.00000
+---------------------------------------
+-100.43382263183594
+Time steps: 60000
+---------------------------------------
+Evaluation over 10 episodes: Return 0.448
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.70000
+Unstable hours (%): 1.6666666666666665
+Weaning score: 0.12
+Super metric: 0.10000
+---------------------------------------
+-121.5641098022461
+Time steps: 70000
+---------------------------------------
+Evaluation over 10 episodes: Return -0.665
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.50000
+Unstable hours (%): 6.666666666666666
+Weaning score: 0.18
+Super metric: 0.40000
+---------------------------------------
+-144.1444549560547
+Time steps: 80000
+---------------------------------------
+Evaluation over 10 episodes: Return -3.705
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.60000
+Unstable hours (%): 15.0
+Weaning score: 0.045
+Super metric: 0.10000
+---------------------------------------
+-168.27944946289062
+Time steps: 90000
+---------------------------------------
+Evaluation over 10 episodes: Return 0.591
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.04000
+Aggregate AIR/ep: 0.64000
+Unstable hours (%): 3.333333333333333
+Weaning score: 0.02
+Super metric: -0.10000
+---------------------------------------
+-195.25143432617188
+Time steps: 100000
+---------------------------------------
+Evaluation over 10 episodes: Return 0.111
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.80000
+Unstable hours (%): 6.666666666666666
+Weaning score: 0.02
+Super metric: 0.30000
+---------------------------------------
+-214.60206604003906
+Time steps: 110000
+---------------------------------------
+Evaluation over 10 episodes: Return -3.061
+ACP 0.4000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.50000
+Unstable hours (%): 1.6666666666666665
+Weaning score: 0.15999999999999998
+Super metric: 0.50000
+---------------------------------------
+-227.06063842773438
+Time steps: 120000
+---------------------------------------
+Evaluation over 10 episodes: Return 0.660
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.20000
+Unstable hours (%): 21.666666666666664
+Weaning score: 0.025
+Super metric: 0.60000
+---------------------------------------
+-239.88497924804688
+Time steps: 130000
+---------------------------------------
+Evaluation over 10 episodes: Return -0.109
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.50000
+Unstable hours (%): 4.999999999999999
+Weaning score: 0.06999999999999999
+Super metric: 0.20000
+---------------------------------------
+-245.76889038085938
+Time steps: 140000
+---------------------------------------
+Evaluation over 10 episodes: Return 0.052
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.60000
+Unstable hours (%): 14.999999999999996
+Weaning score: 0.06999999999999999
+Super metric: 0.50000
+---------------------------------------
+-264.9637451171875
+Time steps: 150000
+---------------------------------------
+Evaluation over 10 episodes: Return 1.605
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.70000
+Unstable hours (%): 0.0
+Weaning score: 0.17333333333333334
+Super metric: 0.30000
+---------------------------------------
+-263.949951171875
+Time steps: 160000
+---------------------------------------
+Evaluation over 10 episodes: Return 1.616
+ACP 0.7000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.30000
+Unstable hours (%): 9.999999999999996
+Weaning score: 0.175
+Super metric: 1.30000
+---------------------------------------
+-277.2109069824219
+Time steps: 170000
+---------------------------------------
+Evaluation over 10 episodes: Return -1.384
+ACP 0.0000
+MAP AIR/ep: 0.02000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.82000
+Unstable hours (%): 10.0
+Weaning score: 0.17
+Super metric: 0.30000
+---------------------------------------
+-288.98321533203125
+Time steps: 180000
+---------------------------------------
+Evaluation over 10 episodes: Return -0.336
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.80000
+Unstable hours (%): 0.0
+Weaning score: 0.06000000000000001
+Super metric: 0.50000
+---------------------------------------
+-280.965576171875
+Time steps: 190000
+---------------------------------------
+Evaluation over 10 episodes: Return 0.996
+ACP 0.0000
+MAP AIR/ep: 0.00000 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.00000
+Aggregate AIR/ep: 0.90000
+Unstable hours (%): 0.0
+Weaning score: 0.06000000000000001
+Super metric: 0.50000
+---------------------------------------
+-281.3682861328125
+Time steps: 200000
+---------------------------------------
+Evaluation over 100 episodes: Return 0.788
+ACP 0.2700
+MAP AIR/ep: 0.01500 | HR AIR/ep: 0.00000 | Pulsatility AIR/ep: 0.01250
+Aggregate AIR/ep: 0.61750
+Unstable hours (%): 4.333333333333334
+Weaning score: 0.17383333333333328
+Super metric: 0.51000
+---------------------------------------
+Saved policy to /abiomed/models/policy_models/SVR_hpo/abiomed/2025-08-27_03-43-24/svr_seed_1_19_gamma1_0.2_gamma2_0.2_gamma3_0.5.pth
